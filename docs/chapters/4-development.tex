@@ -7,9 +7,11 @@ classificação do modelo treinado de diferentes formas.
 \section{Tecnologias Utilizadas}
 
 O processamento de dados e \textit{fine-tuning} foram feitos com \textit{scripts} em Python e \textit{Jupyter
-notebooks}. As dependências do projeto foram gerenciadas com o gerenciador Poetry e o \textit{framework} de
-\textit{fine-tuning} utilizado foi o Unsloth. Os treinamentos foram realizados com uma placa NVIDIA H100 de 80 GB que
-faz parte de uma plataforma NVIDIA DGX H100.
+notebooks}.
+As dependências do projeto foram gerenciadas com o gerenciador Poetry e o \textit{framework} de \textit{fine-tuning}
+utilizado foi o Unsloth. Os treinamentos foram realizados com uma placa NVIDIA H100 de 80 GB que faz parte de uma
+plataforma
+NVIDIA DGX H100.
 
 \section{Conjunto de Dados}
 
@@ -64,13 +66,20 @@ formato:
 A primeira etapa nos experimentos realizar o \textit{fine-tuning} com \ac{QLoRA} com 450 amostras de treinamento e 50
 de validação. Os hiperparâmetros\footnote{parâmetros de treinamento} utilizados no treinamento estão na
 \autoref{tab:qlora_500_config}, alguns deles foram omitidos por serem menos relevantes nessa etapa. O \ac{rsLoRA} de
-\textcite{kalajdzievski2023rank} foi utilizado para melhorar o desempenho, utilizando um fator de escala \begin{math}\frac{\alpha_{LoRA}}{\sqrt{r}}\end{math} em vez do
-\begin{math}\frac{\alpha_{LoRA}}{r}\end{math} do \ac{LoRA} original. Por fim, também foi utilizado o otimizador \ac{Adam} na sua versão paginada de 32 bits. A
-\autoref{tab:qlora_500_training} apresenta dados sobre o treinamento e a \autoref{fig:loss_qlora_500} apresenta o \textit{loss} de treinamento e validação ao longo dos
+\textcite{kalajdzievski2023rank} foi utilizado para melhorar o desempenho, utilizando um fator de escala
+\begin{math}\frac{\alpha_{LoRA}}{\sqrt{r}}\end{math} em vez do
+\begin{math}\frac{\alpha_{LoRA}}{r}\end{math} do \ac{LoRA} original. Por fim, também foi utilizado o otimizador
+\ac{Adam} na sua versão
+paginada de 32 bits. A
+\autoref{tab:qlora_500_training} apresenta dados sobre o treinamento e a \autoref{fig:loss_qlora_500} apresenta o
+\textit{loss} de
+treinamento e validação ao longo dos
 passos.
 
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \ac{QLoRA} com 450, 900 e 1800 amostras. A primeira seção se refere às configurações específicas de \ac{PEFT}, enquanto a
+    \caption{\small Hiperparâmetros para o \ac{QLoRA} com 450, 900 e 1800 amostras. A primeira seção se refere às
+    configurações
+    específicas de \ac{PEFT}, enquanto a
     segunda se refere ao treinamento em geral.}
     \centering
     \begin{tabular}{l|c}
@@ -118,9 +127,15 @@ passos.
 \end{figure}
 
 Em seguida, foi realizado o \textit{fine-tuning} com \ac{LoRA}, ou seja, sem quantização, com 450 amostras. Os
-hiperparâmetros utilizados são similares, porém, o \textit{rank} foi reduzido para 16, assim como o \begin{math}\alpha_{LoRA}\end{math}. O \ac{rsLoRA} não foi utilizado e a taxa de aprendizado foi reduzida a
-\begin{math}1 \times 10^{-4}\end{math}. Por fim o otimizador \ac{AdamW} foi utilizado. A \autoref{tab:lora_500_training} apresenta os dados de treinamento e a
-\autoref{fig:loss_lora_500} apresenta o \textit{loss}. O treinamento foi aplicado somente sobre 64174400 parâmetros, uma quantidade menor do que a usada no
+hiperparâmetros utilizados são similares, porém, o \textit{rank} foi reduzido para 16, assim como o
+\begin{math}\alpha_{LoRA}\end{math}. O
+\ac{rsLoRA} não foi utilizado e a taxa de aprendizado foi reduzida a
+\begin{math}1 \times 10^{-4}\end{math}. Por fim o otimizador \ac{AdamW} foi utilizado. A
+\autoref{tab:lora_500_training} apresenta os dados
+de treinamento e a
+\autoref{fig:loss_lora_500} apresenta o \textit{loss}. O treinamento foi aplicado somente sobre 64174400 parâmetros,
+uma quantidade menor
+do que a usada no
 \ac{QLoRA} por conta do \textit{rank} reduzido.
 
 \begin{table}[ht]
@@ -242,7 +257,9 @@ utilizado somente o \ac{QLoRA} no treinamento com 9500 amostras. Os dados dos tr
 \clearpage
 
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \textit{fine-tuning} com 5000 e 9500 amostras. A primeira seção se refere às configurações específicas de \ac{PEFT}, enquanto
+    \caption{\small Hiperparâmetros para o \textit{fine-tuning} com 5000 e 9500 amostras. A primeira seção se refere às
+    configurações
+    específicas de \ac{PEFT}, enquanto
     a segunda se refere ao treinamento em geral.}
     \centering
     \begin{tabular}{l|c}
@@ -358,8 +375,11 @@ Já na pergunta objetiva, é esperado que o modelo informe apenas o nome da doen
 conjunto de dados, sendo que o \textit{prompt} usado é:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. Say only the name of the disease and nothing else. The diseases to be classified are: melanocytic Nevi,
-    melanoma, benign keratosis-like lesions, basal cell carcinoma, actinic keratoses, vascular lesions and dermatofibroma.\textbf{<imagem>}}
+    \speak{Usuário} \textit{Classify the skin lesion in the image. Say only the name of the disease and nothing else.
+    The diseases to
+    be classified are: melanocytic Nevi,
+    melanoma, benign keratosis-like lesions, basal cell carcinoma, actinic keratoses, vascular lesions and
+    dermatofibroma.\textbf{<imagem>}}
 \end{dialogue}
 
 Foram feitas 100 perguntas livres e 1000 perguntas objetivass para cada modelo treinado e para o
@@ -384,7 +404,9 @@ lesões de pele. O diálogo abaixo apresenta uma classificação correta para a 
     \speak{Modelo} \textit{\textbf{Step 1: Identify the lesion.} \\
     The image shows a skin lesion with an irregular border and a dark brown color. \\
     \textbf{Step 2: Determine the characteristics of the lesion.} \\
-    The lesion has an irregular border, which is a characteristic of melanoma. The dark brown color is also consistent with melanoma. \\
+    The lesion has an irregular border, which is a characteristic of melanoma. The dark brown color is also consistent
+    with
+    melanoma. \\
     \textbf{Step 3: Consider the possible diagnoses.} \\
     Based on the characteristics of the lesion, it is likely that the diagnosis is melanoma. \\
     \textbf{Step 4: Provide the final answer.} \\
@@ -410,7 +432,9 @@ tratava de uma lesão de pele. Um exemplo assim pode ser visto no diálogo abaix
 
 \begin{dialogue}
     \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem de um nevo melanocítico>}} \\
-    \speak{Modelo} \textit{The skin lesion in the image appears to be a dermatological condition, likely a typeof skin cancer or a benign growth. However, without
+    \speak{Modelo} \textit{The skin lesion in the image appears to be a dermatological condition, likely a typeof skin
+    cancer or a
+    benign growth. However, without
     further information or a medical diagnosis, it is difficult to provide a definitive classification.}
 \end{dialogue}
 
@@ -429,6 +453,7 @@ Foram registradas 3 respostas incertas para o modelo quantizado e apenas uma par
 \begin{figure}[ht]
     \centering
     \caption{\small Matriz de confusão para o \ac{LLaMA}-11B-Vision-Instruct quantizado.}
+
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_quantized.png}
     \label{fig:confusion_matrix_llama_quantized}
     \fonte{Autoria própria.}
