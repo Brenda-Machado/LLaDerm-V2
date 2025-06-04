@@ -1,4 +1,4 @@
-\chapter{Desenvolvimento Parcial} % TODO: Melhorar isso no futuro e resumir a primeira parte
+\chapter{Desenvolvimento} % TODO: Melhorar isso no futuro e resumir a primeira parte
 
 Esta seção apresenta a etapa inicial de \textit{fine-tuning} do \ac{LLaMA}-3.2, sendo que ela tem um caráter
 exploratório e visa o desenvolvimento do código base para os próximos experimentos e também analisar a capacidade de
@@ -13,7 +13,9 @@ utilizado foi o Unsloth. Os treinamentos foram realizados com uma placa NVIDIA H
 plataforma
 NVIDIA DGX H100.
 
-\section{Conjunto de Dados}
+\section{Etapa Inicial de Desenvolvimento}
+
+\subsection{Conjunto de Dados}
 
 Para os experimentos iniciais, utilizou-se o conjunto de dados \ac{HAM10000} de \textcite{tschandl2018ham10000}, que
 possui 13354 imagens com informações como a doença causadora da lesão de pele, a idade do paciente, sexo e localização
@@ -42,12 +44,12 @@ dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{H
     \fonte{\textcite{tschandl2018ham10000}}
 \end{table}
 
-\section{Experimentos com \textit{Fine-tuning}}
+\subsection{Experimentos com \textit{Fine-tuning}}
 
 Os experimentos utilizaram a variante \ac{LLaMA}-3.2-11B-Vision-Instruct, que possui 11 bilhões de parâmetros. Os
 métodos de \textit{fine-tuning} utilizados foram o \ac{LoRA} e o \ac{QLoRA}.
 
-\subsection{Dados de treinamento}
+\subsubsection{Dados de treinamento}
 
 O modelo utilizado não suporta ainda a utilização de textos em português para tarefas multimodais, sendo assim, os
 diálogos estão em inglês. Foi aplicada uma amostragem estratificada por categoria de lesão de pele sobre os dados de
@@ -59,7 +61,7 @@ formato:
     \speak{Modelo} \textit{The skin lesion in the image is \textbf{<lesão de pele>}.}
 \end{dialogue}
 
-\subsection{\textit{Fine-tuning} com 450, 900 e 1800 amostras}
+\subsubsection{\textit{Fine-tuning} com 450, 900 e 1800 amostras}
 
 % TODO: Ver se é necessário citar os criadores do Adam e AdamW.
 
@@ -245,7 +247,7 @@ anteriormente. As informações sobre o treinamento podem ser vistas na \autoref
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsection{\textit{Fine-tuning} com 5000 e 9500 amostras}
+\subsubsection{\textit{Fine-tuning} com 5000 e 9500 amostras}
 
 Para avaliar o impacto de diferentes hiperparâmetros, foram feitos \textit{fine-tunings} modificados com 5000 e 9500
 amostras. As configurações na \autoref{tab:qlora_5000_config} se referem tanto ao \ac{QLoRA} quanto ao \ac{LoRA}. Foi
@@ -356,13 +358,13 @@ utilizado somente o \ac{QLoRA} no treinamento com 9500 amostras. Os dados dos tr
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsection{Análise dos treinamentos}
+\subsubsection{Análise dos treinamentos}
 
 A vantagem no baixo gasto de memória do \ac{QLoRA} se torna evidente com os treinamentos, usando em média 1,8 vezes
 menos memória que o \ac{LoRA}. Observa-se também que as configurações de \textit{fine-tuning} usadas no treinamento com
 5000 e 9500 amostras levaram a uma maior instabilidade no \textit{loss} do longo dos passos.
 
-\section{Testes}
+\subsection{Testes}
 
 Os testes se consistiram em uma série de perguntas aos modelos, em que foram usadas duas modalidades de pergunta, uma
 livre e outra objetiva. Na pergunta livre o \textit{prompt} é definido como:
@@ -393,7 +395,7 @@ Os testes com perguntas livres foram avaliados manualmente para observar o forma
 testes com perguntas objetivas foram processados para a extração das lesões previstas para as imagens. Com esses dados,
 foram geradas matrizes de confusão com os cálculos da acurácia de cada modelo.
 
-\subsection{Análise do LLaMA-3.2-Vision-Instruct}
+\subsubsection{Análise do LLaMA-3.2-Vision-Instruct}
 
 Tanto o modelo na versão normal quanto o modelo quantizado apresentaram respostas bem variadas para cada pergunta
 livre. Em geral, as respostas apresentam uma estrutura de passos que se baseia em metodologias de classificação de
@@ -469,7 +471,7 @@ Foram registradas 3 respostas incertas para o modelo quantizado e apenas uma par
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsection{Análise dos modelos após o \textit{fine-tuning}}
+\subsubsection{Análise dos modelos após o \textit{fine-tuning}}
 
 Para as perguntas livres, todos os modelos treinados responderam no formato especificado no treinamento. O primeiro
 diálogo abaixo apresenta uma classificação correta e o segundo apresenta uma incorreta, ambas as respostas foram dadas
@@ -614,3 +616,5 @@ A \autoref{tab:training_accuracies} apresenta as acurácias de forma resumida.
     \label{tab:training_accuracies}
     \fonte{Autoria própria}
 \end{table}
+
+\section{Etapa Final de Desenvolvimento}

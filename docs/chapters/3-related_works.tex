@@ -1,5 +1,5 @@
 % TODO: Ajustar isso para a entrega final
-\chapter{Trabalhos Correlatos} % TODO: Comentar mais sobre estudos que apresentam o impacto de diferentes técnicas de fine-tuning
+\chapter{Trabalhos Correlatos}
 
 Nesta seção serão apresentados os trabalhos similares a este para realizar comparações e apresentar melhor o estado da
 arte nessa linha de pesquisa.
@@ -19,7 +19,7 @@ utilizam imagens de dermatoscopia, enquanto 33,33\% deles usam imagens macroscó
 panorâmicas mencionadas na \autoref{sec:skin_lesion_images}. Os outros 18,52\% se tratam de conjuntos com diversas
 modalidades de imagens, como imagens de ultrasonografia, multiespectrais e outras.
 
-\section{Classificação com \textit{ViTs}}
+\section{Classificação com ViTs}
 
 Vários modelos de classificação de lesões baseados em \acp{ViT} foram propostos desde a introdução dessa arquitetura. A
 pesquisa de \textcite{khan2023identifying} apresenta o cenário da utilização de \acp{ViT} nessa área. Muitas
@@ -33,64 +33,22 @@ híbridos resolve esses problemas. Uma dessas arquiteturas híbridas é a \texti
 \textit{U-Nets}, que conforme evidenciado por \textcite{gulzar2022skin}, consegue atingir uma acurácia de 92,11\% na
 classificação de lesões de pele através do treinamento com o conjunto de dados \ac{ISIC}-2018.
 
-\section{Classificação com \textit{MLLMs}}
+\section{Classificação com MLLMs}
 
-\acp{MLLM} vêm sendo aplicados no contexto da dermatologia nos últimos anos. O \ac{GPT}-4V e o \ac{LLaVA} são dois
-modelos proeminentes na resolução de tarefas visuais. Em um estudo de \textcite{cirone2024assessing}, é analisada a
-eficácia do uso desses modelos na identificação de melanomas em diferentes tons de pele.
-
-Os testes foram feitos com os conjuntos de dados MClass-D, Dermnet NZ e imagens de livros de dermatologia, contendo
-imagens macroscópicas com resolução de
-\begin{math}900 \times 1600\end{math} pixels. Para cada imagem, foram feitas 20 perguntas em relação às suas
-características, sendo que cada modelo foi testado com 3 imagens, resultando num total de 60 pares de pergunta e imagem
-por modelo. As imagens também tiveram suas cores modificadas para avaliar o impacto da coloração na identificação de
-melanomas.
-
-% TODO: Comentar sobre o modelo do Marques (http://sibgrapi.sid.inpe.br/col/sid.inpe.br/sibgrapi/2024/08.28.22.28/doc/Marques-125.pdf) e o SkinDiseaseChat
-
-No fim, o \ac{GPT}-4V atingiu uma acurácia de 85\% e o \ac{LLaVA} atingiu apenas 45\%. O modelo \ac{LLaVA} não
-conseguiu identificar melanomas corretamente quando as imagens tinham suas cores modificadas e também não conseguiu
-identificar detalhes como ulcerações ou sangramentos. Um detalhe importante é que ambos os modelos são generalistas e
-não são treinados com um foco na classificação de lesões de pele.
-
-O \textit{benchmark} OmniMedVQA de \textcite{hu2024omnimedvqa} traz dados sobre o desempenho de \acp{MLLM} em
-diferentes tarefas visuais da medicina. Em particular, os testes apresentam as pontuações de diversos modelos na área
-de dermatologia, como pode ser visto na \autoref{tab:omnimedvqa_dermatology_results}.
-
-\begin{table}[ht]
-    \caption{\small Pontuação no \textit{benchmark} OmniMedVQA em dermatologia. A primeira seção de linhas contém
-    modelos generalistas e a
-    outra contém modelos
-    especializados na área médica.}
-    \centering
-    \begin{tabular}{l|c}
-        \hline
-        Modelo                  & Pontuação em dermatologia \\ \hline
-        InstructBLIP            & 61,86                     \\
-        \ac{LLaMA}\_Adapter\_v2 & 51,43                     \\
-        \ac{LLaVA}              & 49,67                     \\
-        PGTrans                 & 44,66                     \\
-        Otter                   & 42,66                     \\
-        BLIP-2                  & 41,07                     \\
-        Mini\ac{GPT}-4          & 40,09                     \\
-        mPLUG-Owl               & 35,98                     \\ \hline
-        \ac{LLaVA}-Med          & 44,90                     \\
-        RadFM                   & 39,03                     \\
-        Med-Flamingo            & 32,33                     \\
-        MedVInT                 & 29,13                     \\ \hline
-    \end{tabular}
-    \label{tab:omnimedvqa_dermatology_results}
-    \fonte{\textcite{hu2024omnimedvqa}}
-\end{table}
-
-Nas subseções abaixo, serão apresentados alguns modelos que focam em problemas relacionados à classificação de lesões
-de pele.
+Nos últimos anos, a aplicação de \acp{MLLM} na análise de imagens médicas se tornou mais comum. Em uma revisão
+sistemática de \textcite{eric2025systematic}, é avaliado o estado da arte, contemplando os principais avanços e
+desafios nesta área. Em geral, a maioria dos \acp{MLLM} que possuem alguma capacidade de análise de imagens
+dermatológicas são generalistas e não apresentam uma avaliação aprofundada de suas capacidades de classificação ou
+descrição de lesões de pele. Porém, há modelos especializados para a dermatologia, como o SkinGPT-4 de
+\textcite{zhou2023skingpt}. Nas subseções abaixo, são apresentados alguns modelos que possuem aplicações na
+dermatologia.
 
 \subsection{SkinGPT-4}
 
-Esse modelo foi proposto e desenvolvido por \textcite{zhou2023skingpt} e se baseia no Mini\ac{GPT}-4, um \ac{MLLM}
-composto por um \ac{ViT} com um \textit{Q-Former} pré-treinado e o \ac{LLM} Vicuna, que por sua vez é baseado no
-\ac{LLaMA}. A arquitetura pode ser vista na \autoref{fig:skingpt4}.
+O modelo SkinGPT-4 foi proposto e desenvolvido por \textcite{zhou2023skingpt} e se baseia no Mini\ac{GPT}-4, um
+\ac{MLLM} composto por um \ac{ViT} com um \textit{Q-Former} pré-treinado e o \ac{LLM} Vicuna, que por sua vez é baseado
+no \ac{LLaMA}. Este \ac{MLLM} foi desenvolvido para tarefas de pergunta e resposta visuais, também conhecidas como
+\ac{VQA}. A arquitetura pode ser vista na \autoref{fig:skingpt4}.
 
 \begin{figure}[ht]
     \centering
@@ -108,21 +66,6 @@ primeira etapa de treinamento e 49043 na segunda.
 A verificação do desempenho do modelo foi feito com base em 150 diagnósticos de casos reais realizados pelo
 Skin\ac{GPT}-4. Esses diagnósticos foram avaliados por dermatologistas certificados, sendo que 78,76\% dos diagnósticos
 foram classificados como corretos.
-
-\subsection{LLaVA-Med}
-
-O \ac{LLaVA}-Med é um modelo com foco na área médica geral desenvolvido por \textcite{li2024llava}. Esse modelo é
-baseado no \ac{LLaVA}, sendo composto pelo \ac{LLM} Vicuna e o codificador visual \ac{CLIP} \ac{ViT}-L/14
-\cite{liu2024visual}.
-
-Foram criados dois conjuntos de dados com base em pares de imagens e textos de diversas áreas da medicina, um conjunto
-para alinhamento de conceitos e outro para \textit{instruction-following}. A primeira etapa do treinamento envolveu o
-\textit{fine-tuning} do projetor de entrada por 7 horas em 8 NVIDIA A100 de 40 GB, alinhando o modelo com o contexto
-médico. Já a segunda etapa levou 8 horas com as mesmas GPUs, realizando o \textit{fine-tuning} sobre o projetor de
-entrada e o \ac{LLM}, adaptando o modelo para responder perguntas sobre imagens de casos médicos.
-
-Esse modelo apresentou um desempenho melhor em relação ao \ac{LLaVA} original, atingindo mais de 90 pontos no
-\textit{benchmark} PathVQA, por exemplo.
 
 \subsection{MpoxVLM}
 
@@ -143,25 +86,152 @@ bilhões de parâmetros. A \autoref{fig:mpoxvlm} apresenta a arquitetura deste \
 
 Inicialmente, o \ac{ViT}-L/14-336 foi pré-treinado com o conjunto de dados de lesões de pele causadas por
 \textit{Monkeypox}. Depois o modelo foi construído e os projetores de entrada foram treinados. Por fim, foi feito um
-\textit{fine-tuning} com \ac{LoRA} do \ac{LLaMA}-2 para tarefas de pergunta e resposta. Foram utilizadas duas NVIDIA
-RTX 4090 para os treinamentos nesse estudo.
+\textit{fine-tuning} com \ac{LoRA} do \ac{LLaMA}-2 para tarefas de \ac{VQA}. Foram utilizadas duas NVIDIA RTX 4090 para
+os treinamentos nesse estudo.
 
 Os resultados apresentados demonstram que o MpoxVLM atinge uma acurácia de 90,38\% no diagnóstico de
 \textit{Monkeypox}, ultrapassando vários outros \acp{MLLM}.
 
-\subsection{Comparação entre \textit{MLLMs}} % TODO: Comentar que no paper do LLaMA-3.2 viram que CLIP não é tão bom assim
+\subsection{MedPLIB}
 
-Em geral, os modelos utilizam como base \acp{LLM} da família \ac{LLaMA} e codificadores visuais baseados em \acp{ViT},
-sendo que o MpoxVLM apresentou a arquitetura mais complexa. O \textit{fine-tuning} completo também é frequentemente
-utilizado, porém, o MpoxVLM atingiu bons resultados com o \ac{LoRA}. Dos três modelos apresentados, somente o
+O MedPLIB de \textcite{huang2025towards} é um \ac{MLLM} generalista que foca no entendimento de imagens a nível de
+pixel, oferecendo suporte para vários formatos de \textit{prompt}, como os de \ac{VQA} e de descrição de regiões ou
+pontos. O modelo utiliza o codificador visual \ac{CLIP} Large de \textcite{radford2021learning}, o \ac{LLM}
+\ac{LLaMA}-2 com 7 bilhões de parâmetros e o modelo para segmentação de imagens \ac{SAM-Med2D} de
+\textcite{cheng2023sam} como decodificador para o foco em áreas específicas da imagem.
+
+A arquitetura do MedPLIB é organizada como uma \ac{MoE}, dessa forma, múltiplos modelos são treinados com focos em
+diferentes domínios, levando ao aumento do desempenho. O \textit{fine-tuning} foi realizado em quatro estágios,
+começando com o alinhamento das respostas textuais e seguindo com o treinamento visual para o \ac{VQA}. Depois, o
+decodificador utilizado na segmentação e identificação de regiões é treinado e o processo é finalizado com um
+treinamento completo sobre todos os componentes do modelo. A \autoref{fig:medblib} apresenta a arquitetura do MedPLIB.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Arquitetura do MedBLIP.}
+    \includegraphics[width=0.85\columnwidth,keepaspectratio]{images/medblip.pdf}
+    \label{fig:medblib}
+    \fonte{\textcite{huang2025towards}.}
+\end{figure}
+
+O estudo apresenta avaliações na área da dermatologia com o \textit{benchmark} OmniMedVQA de
+\textcite{hu2024omnimedvqa}, que avalia o desempenho em tarefas de \ac{VQA}. Os resultados podem ser conferidos na
+\autoref{tab:medblip_dermatology_results}.
+
+\clearpage
+
+% TODO: Adicionar siglas pra todos
+\begin{table}[ht]
+    \caption{\small Comparação entre modelos no \textit{benchmark} OmniMedVQA em dermatologia. A pontuação máxima está
+    destacada.}
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Modelo                 & Pontuação      \\ \hline
+        MiniGPT-4              & 41,28          \\
+        BLIP-2                 & 40,93          \\
+        InstructBLIP           & \textbf{63,02} \\
+        \ac{LLaVA}             & 49,67          \\
+        VPGTrans               & 45,42          \\
+        RadFM                  & 38,32          \\
+        \ac{LLaVA}-Med         & 46,42          \\
+        LISA                   & 41,61          \\ \hline
+        MedPLIB (sem \ac{MoE}) & 43,37          \\
+        MedPLIB                & 51,47          \\ \hline
+    \end{tabular}
+    \label{tab:medblip_dermatology_results}
+    \fonte{\textcite{huang2025towards}}
+\end{table}
+
+\subsection{UMed-LVLM}
+
+O modelo UMed-LVLM, desenvolvido por \textcite{zhou2025training}, é generalista e foca em aprimorar a capacidade de
+localização de anormalidades médicas em imagens. Este modelo baseia-se no MedVInt de \textcite{zhang2023pmc} e é
+treinado com duas etapas, sendo que a primeira realiza um \textit{fine-tuning} com o método \textit{Abnormal-Aware
+Instruction Tuning} e a segunda aplica \ac{PPO} com o método \textit{Abnormal-Aware Rewarding}.
+
+\clearpage
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Processo de treinamento do UMed-LVLM.}
+    \includegraphics[width=0.5\columnwidth,keepaspectratio]{images/umedlvlm.pdf}
+    \label{fig:umedlvlm}
+    \fonte{\textcite{zhou2025training}.}
+\end{figure}
+
+O artigo apresenta uma avaliação da acurácia em diagnósticos dermatológicos do UMed-LVLM. Os testes foram realizados
+com o conjunto de dados MedMNIST de \textcite{yang2021medmnist}. A \autoref{tab:umedlvlm_acc} traz os resultados da
+avaliação.
+
+\begin{table}[ht]
+    \caption{\small Comparação entre modelos com o conjunto de dados MedMNIST em dermatologia. A pontuação
+    máxima está destacada.}
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Modelo        & Acurácia      \\ \hline
+        ResNet50      & 73,1          \\
+        DWT-CV        & 74,8          \\
+        SADAE         & 75,9          \\
+        PMC-\ac{CLIP} & 79,8          \\
+        MedVInT       & 80,0          \\ \hline
+        UMed-LVLM     & \textbf{84,1} \\ \hline
+    \end{tabular}
+    \label{tab:umedlvlm_acc}
+    \fonte{\textcite{zhou2025training}}
+\end{table}
+
+\subsection{UMIT}
+
+UMIT é um \ac{MLLM} generalista desenvolvido por \textcite{yu2025umit} que tem como objetivo suportar \ac{VQA} em
+várias áreas da medicina. O modelo foi treinado a partir do \ac{MLLM} Qwen2-VL de \textcite{wang2024qwen2} e utilizou
+um regime de duas etapas no seu treinamento. A primeira etapa alinha as informações das imagens médicas com as
+informações textuais. Na segunda etapa, o \textit{fine-tuning} do modelo é realizado, adaptando-o para diversas tarefas
+de \ac{VQA}. A \autoref{fig:umit} mostra a arquitetura e o processo de treinamento do \ac{MLLM} UMIT.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small (a): Processo de treinamento e arquitetura do UMIT. (b) Primeira etapa de treinamento (c):
+    Segunda etapa de treinamento.}
+    \includegraphics[width=0.8\columnwidth,keepaspectratio]{images/umit.pdf}
+    \label{fig:umit}
+    \fonte{\textcite{yu2025umit}.}
+\end{figure}
+
+A acurácia em diagnósticos do modelo foi avaliada com a seção de dermatologia do conjunto de dados MedMNIST e pode ser
+conferida na \autoref{tab:umit_acc}.
+
+\begin{table}[ht]
+    \caption{\small Comparação da acurácia entre modelos na categoria de dermatologia do MedMNIST. A pontuação máxima
+    está destacada.}
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Modelo      & Acurácia       \\ \hline
+        Qwen2-vl    & 11,3           \\
+        BiomedGPT-S & 75,2           \\
+        BiomedGPT-M & 78,0           \\
+        BiomedGPT-B & 78,6           \\ \hline
+        UMIT        & \textbf{82,54} \\ \hline
+    \end{tabular}
+    \label{tab:umit_acc}
+    \fonte{\textcite{yu2025umit}}
+\end{table}
+
+\subsection{Comparação entre MLLMs}
+
+Os \acp{MLLM} avaliados apresentam arquiteturas diversas e baseiam-se em modelos pré-treinados de código aberto. O
+\textit{fine-tuning} de múltiplas etapas também foi frequentemente utilizado. Dos cinco modelos apresentados, somente
 Skin\ac{GPT}-4 e o MpoxVLM são especializados em lesões de pele, sendo que o artigo do Skin\ac{GPT}-4 é o que tem o
-objetivo mais similar ao deste trabalho. Os conjuntos de dados utilizados são diversos e possuem imagens de diferentes
-categorias, como macroscópicas e dermatoscópicas.
+objetivo mais similar ao deste trabalho. O conjunto de dado utilizado para o treinamento do Skin\ac{GPT}-4 é
+diverso e possui imagens de diferentes categorias, como macroscópicas e de exames de dermatoscopia.
 
-Devido a recência do \ac{LLaMA}-3.2, há poucos casos em que este modelo foi utilizado. Um diferencial considerável
-deste trabalho é a utilização deste \ac{MLLM}. Outro diferencial é a análise da eficácia do \ac{QLoRA} em relação ao
-\ac{LoRA} no contexto de classificação de lesões de pele. A \autoref{tab:mllm_comparison} mostra uma comparação entre
-os \acp{MLLM} apresentados.
+Devido à introdução relativamente recente do \ac{LLaMA}-3.2, há poucos estudos que utilizam este modelo. Um diferencial
+considerável deste trabalho é a utilização deste \ac{MLLM}. Outro diferencial é a análise da eficácia do \ac{QLoRA} em
+relação ao \ac{LoRA} no contexto de classificação de lesões de pele. Por fim, este trabalho realizará um
+\textit{fine-tuning} simples em uma só etapa a fim de simplificar o desenvolvimento e a comparação entre os métodos de
+\textit{fine-tuning}. A \autoref{tab:mllm_comparison} mostra uma comparação entre os \acp{MLLM} apresentados.
 
 \begin{table}[ht]
     \caption{\small Comparação entre diferentes \acp{MLLM} focados na área médica e na classificação de lesões de
@@ -169,11 +239,13 @@ os \acp{MLLM} apresentados.
     \centering
     \begin{tabular}{l|cc}
         \hline
-        Modelo                & MLLM base ou arquitetura                  & Treinamento            \\ \hline
-        Skin\ac{GPT}-4        & Mini\ac{GPT}-4                            & Fine-tuning completo   \\
-        \ac{LLaVA}-Med        & \ac{LLaVA}                                & Fine-tuning completo   \\
-        MpoxVLM               & \ac{CLIP}, \ac{ViT}-L/14-336 e LLaMA-2-7B & \ac{LoRA}              \\
-        Modelo deste trabalho & \ac{LLaMA}-3.2-11B e \ac{LLaMA}-3.2-90B   & \ac{QLoRA} e \ac{LoRA} \\ \hline
+        Modelo                   & \ac{MLLM} ou arquitetura base                                \\ \hline
+        Skin\ac{GPT}-4           & Mini\ac{GPT}-4                                               \\
+        MpoxVLM                  & \ac{CLIP}, \ac{ViT}-L/14-336 e LLaMA-2-7B                    \\
+        MedPLIB                  & \ac{CLIP}-Large, \ac{SAM-Med2D} e \ac{LLaMA}-2-7B (\ac{MoE}) \\
+        UMed-LVLM                & MedVInt                                                      \\
+        UMIT                     & Qwen2-VL                                                     \\
+        \ac{MLLM} deste trabalho & \ac{LLaMA}-3.2-11B                                           \\ \hline
     \end{tabular}
     \label{tab:mllm_comparison}
     \fonte{Autoria própria.}
