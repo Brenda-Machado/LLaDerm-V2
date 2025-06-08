@@ -1,30 +1,33 @@
 \chapter{Desenvolvimento} % TODO: Melhorar isso no futuro e resumir a primeira parte
 
-Esta seção apresenta a etapa inicial de \textit{fine-tuning} do \ac{LLaMA}-3.2, sendo que ela tem um caráter
-exploratório e visa o desenvolvimento do código base para os próximos experimentos e também analisar a capacidade de
-classificação do modelo treinado de diferentes formas.
+Esta seção apresenta as duas etapas do desenvolvimento do trabalho. Para cada etapa, será apresentado o processo de
+treinamento e de execução de testes, incluindo também a análise dos resultados. Essa divisão permite uma análise mais
+aprofundada dos experimentos com diferentes conjuntos de dados.
 
 \section{Tecnologias Utilizadas}
 
-O processamento de dados e \textit{fine-tuning} foram feitos com \textit{scripts} em Python e \textit{Jupyter
-notebooks}.
-As dependências do projeto foram gerenciadas com o gerenciador Poetry e o \textit{framework} de \textit{fine-tuning}
-utilizado foi o Unsloth. Os treinamentos foram realizados com uma placa NVIDIA H100 de 80 GB que faz parte de uma
-plataforma
-NVIDIA DGX H100.
+Para ambas as etapas, as mesmas tecnologias foram utilizadas. O processamento de dados e \textit{fine-tuning} foram
+feitos com \textit{scripts} em Python e \textit{Jupyter notebooks}. Já as dependências do projeto foram gerenciadas com
+o gerenciador Poetry e o \textit{framework} de \textit{fine-tuning} utilizado foi o Unsloth. Por fim, os treinamentos
+foram realizados com uma placa NVIDIA H100 de 80 GB que faz parte de uma plataforma NVIDIA DGX H100.
 
 \section{Etapa Inicial de Desenvolvimento}
+
+Nesta seção, a etapa inicial de \textit{fine-tuning} do \ac{LLaMA}-3.2 é apresentada, sendo que ela tem um caráter
+exploratório e visa o desenvolvimento do código base para os próximos experimentos e a análise da capacidade
+de classificação do modelo quando treinado de diferentes formas. Nesta etapa o modelo é treinado para classificar
+imagens de lesão de pele advindas de dermatoscopia.
 
 \subsection{Conjunto de Dados}
 
 Para os experimentos iniciais, utilizou-se o conjunto de dados \ac{HAM10000} de \textcite{tschandl2018ham10000}, que
-possui 13354 imagens com informações como a doença causadora da lesão de pele, a idade do paciente, sexo e localização
-da lesão. As imagens nesse conjunto de dados são de dermatoscopia.
+possui 13354 imagens de dermatoscopia com informações como a doença causadora da lesão de pele, a idade do paciente,
+sexo e localização da lesão.
 
 O conjunto de dados é separado nas seções de treinamento, teste e validação, que possuem 9577, 1285 e 2492 imagens,
 respectivamente. A \autoref{tab:ham10000_proportion} apresenta as proporções entre as categorias de lesões de pele. Os
 dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{HAM10000} fornecida por
-\textcite{skin_cancer_dataset}.
+\textcite{skin_cancer_dataset}. A proporção das lesões é conservada entre as seções do conjunto de dados.
 
 \begin{table}[ht]
     \caption{\small Proporção entre as diferentes categorias de lesões de pele no \ac{HAM10000}.}
@@ -49,34 +52,31 @@ dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{H
 Os experimentos utilizaram a variante \ac{LLaMA}-3.2-11B-Vision-Instruct, que possui 11 bilhões de parâmetros. Os
 métodos de \textit{fine-tuning} utilizados foram o \ac{LoRA} e o \ac{QLoRA}.
 
-\subsubsection{Dados de treinamento}
+\subsubsection{Dados de Treinamento}
 
-O modelo utilizado não suporta ainda a utilização de textos em português para tarefas multimodais, sendo assim, os
-diálogos estão em inglês. Foi aplicada uma amostragem estratificada por categoria de lesão de pele sobre os dados de
-treinamento para que os diálogos tivessem uma representação proporcional de cada lesão. Eles possuem o seguinte
-formato:
+Para treinar o modelo, foram gerados diálogos constituídos de um pedido para a classificação da lesão com base em uma
+imagem e de uma resposta com a classe da lesão. Os pares de imagens e lesões de pele foram selecionados a partir de
+amostras do conjunto de dados de treinamento. A amostragem foi feita com base nas classes das lesões de pele, assim,
+cada amostra possui uma representação proporcional de lesões em relação ao conjunto de dados completo.
+
+Durante a execução desta etapa, o modelo utilizado ainda não suportava a utilização de textos em português para tarefas
+multimodais, sendo assim, os diálogos estão em inglês. O diálogo pode ser conferido abaixo:
 
 \begin{dialogue}
     \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem>}} \\
     \speak{Modelo} \textit{The skin lesion in the image is \textbf{<lesão de pele>}.}
 \end{dialogue}
 
-\subsubsection{\textit{Fine-tuning} com 450, 900 e 1800 amostras}
+\subsubsection{\textit{Fine-tuning} com 450, 900 e 1800 Amostras}
 
-% TODO: Ver se é necessário citar os criadores do Adam e AdamW.
-
-A primeira etapa nos experimentos realizar o \textit{fine-tuning} com \ac{QLoRA} com 450 amostras de treinamento e 50
-de validação. Os hiperparâmetros\footnote{parâmetros de treinamento} utilizados no treinamento estão na
-\autoref{tab:qlora_500_config}, alguns deles foram omitidos por serem menos relevantes nessa etapa. O \ac{rsLoRA} de
+A primeira etapa nos experimentos foi a realização o \textit{fine-tuning} com \ac{QLoRA} com 450 amostras de
+treinamento e 50 de validação. Os hiperparâmetros\footnote{parâmetros de treinamento} utilizados no treinamento estão
+na \autoref{tab:qlora_500_config}, alguns deles foram omitidos por serem menos relevantes nessa etapa. O \ac{rsLoRA} de
 \textcite{kalajdzievski2023rank} foi utilizado para melhorar o desempenho, utilizando um fator de escala
-\begin{math}\frac{\alpha_{LoRA}}{\sqrt{r}}\end{math} em vez do
-\begin{math}\frac{\alpha_{LoRA}}{r}\end{math} do \ac{LoRA} original. Por fim, também foi utilizado o otimizador
-\ac{Adam} na sua versão
-paginada de 32 bits. A
+\begin{math}\frac{\alpha_{LoRA}}{\sqrt{r}}\end{math} em vez do \begin{math}\frac{\alpha_{LoRA}}{r}\end{math} do
+\ac{LoRA} original. Por fim, também foi utilizado o otimizador \ac{Adam} na sua versão paginada de 32 bits. A
 \autoref{tab:qlora_500_training} apresenta dados sobre o treinamento e a \autoref{fig:loss_qlora_500} apresenta o
-\textit{loss} de
-treinamento e validação ao longo dos
-passos.
+\textit{loss} de treinamento e validação ao longo dos passos.
 
 \begin{table}[ht]
     \caption{\small Hiperparâmetros para o \ac{QLoRA} com 450, 900 e 1800 amostras. A primeira seção se refere às
@@ -247,7 +247,7 @@ anteriormente. As informações sobre o treinamento podem ser vistas na \autoref
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsubsection{\textit{Fine-tuning} com 5000 e 9500 amostras}
+\subsubsection{\textit{Fine-tuning} com 5000 e 9500 Amostras}
 
 Para avaliar o impacto de diferentes hiperparâmetros, foram feitos \textit{fine-tunings} modificados com 5000 e 9500
 amostras. As configurações na \autoref{tab:qlora_5000_config} se referem tanto ao \ac{QLoRA} quanto ao \ac{LoRA}. Foi
@@ -358,7 +358,7 @@ utilizado somente o \ac{QLoRA} no treinamento com 9500 amostras. Os dados dos tr
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsubsection{Análise dos treinamentos}
+\subsubsection{Análise dos Treinamentos}
 
 A vantagem no baixo gasto de memória do \ac{QLoRA} se torna evidente com os treinamentos, usando em média 1,8 vezes
 menos memória que o \ac{LoRA}. Observa-se também que as configurações de \textit{fine-tuning} usadas no treinamento com
@@ -389,7 +389,7 @@ Foram feitas 100 perguntas livres e 1000 perguntas objetivass para cada modelo t
 conjunto de dados. A \textit{temperatura}, uma variável que define a previsibilidade do modelo, foi definida como 0,1
 para que as respostas fossem mais precisas. Além disso, o número máximo de \textit{tokens} foi definido como 128.
 
-\section{Análise dos resultados parciais}
+\subsection{Análise dos Resultados da Iniciais}
 
 Os testes com perguntas livres foram avaliados manualmente para observar o formato de resposta dos modelos, enquanto os
 testes com perguntas objetivas foram processados para a extração das lesões previstas para as imagens. Com esses dados,
@@ -471,7 +471,7 @@ Foram registradas 3 respostas incertas para o modelo quantizado e apenas uma par
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsubsection{Análise dos modelos após o \textit{fine-tuning}}
+\subsubsection{Análise dos Modelos após o \textit{fine-tuning}}
 
 Para as perguntas livres, todos os modelos treinados responderam no formato especificado no treinamento. O primeiro
 diálogo abaixo apresenta uma classificação correta e o segundo apresenta uma incorreta, ambas as respostas foram dadas
@@ -617,4 +617,230 @@ A \autoref{tab:training_accuracies} apresenta as acurácias de forma resumida.
     \fonte{Autoria própria}
 \end{table}
 
+\clearpage
+
 \section{Etapa Final de Desenvolvimento}
+
+Na etapa final de desenvolvimento, o \ac{LLaMA}-3.2 passou pelo \textit{fine-tuning} com o conjunto de dados curados do
+\ac{STT/SC}. O treinamento foi feito com imagens de aproximação, focando na classificação das lesões de pele e classe
+de risco, e também na geração de conclusões sobre as lesões com recomendações detalhadas.
+
+\subsection{Conjunto de Dados}
+
+O conjunto de dados curados do \ac{STT/SC} possui 3651 exames e 31243 imagens. Cada exame pode possuir múltiplas séries
+de imagens, sendo que algumas das séries, especificamente de imagens de dermatoscopia e aproximação, estão associadas a
+lesões específicas. As séries de imagens panorâmicas podem incluir múltiplas lesões. Cada exame possui um texto que
+inclui o laudo para cada lesão de pele.
+
+Os dados originais fornecidos incluem as imagens, um arquivo em \ac{JSON} contendo as associações entre os \acp{ID} dos
+exames e as suas imagens, e um arquivo no formato \ac{CSV} com o texto dos laudos.
+
+\subsubsection{Sanitização e Preparação do Conjunto de Dados}
+
+Para realizar os experimentos, foi necessária a sanitização e preparação do conjunto de dados. A necessidade deste
+processo surgiu da falta de estrutura dos laudos no arquivo \ac{CSV}, sendo que para cada exame, os laudos das
+lesões estavam unificadas em um único texto. Além disso, a formatação apresentava inconsistências e elementos
+indesejados, como rótulos de \ac{HTML}. Por fim, o arquivo \ac{JSON} possuía referências a imagens de categorias que
+não seriam utilizadas, como as de dermatoscopia e panorâmica. Todo o processo de sanitização foi realizado com um
+\textit{Jupyter notebook} e pode ser visto na \autoref{fig:dataset_building}.
+
+Inicialmente, foi feita extração das lesões de pele através da seleção das lesões que possuíam imagens de aproximação
+no arquivo \ac{JSON}. Todas as lesões foram associadas aos seus respectivos exames através do \ac{ID} do exame. No
+total, 6880 lesões de pele foram selecionadas com este processo.
+
+Em seguida, o arquivo \ac{CSV} com os laudos foi processado para substituir elementos de \ac{HTML} por texto simples e
+para estruturar as informações, separando os laudos de cada lesão. Um desafio nesta etapa foi associar corretamente
+as lesões aos seus respectivos laudos. Enquanto no arquivo \ac{JSON} cada lesão era identificada por um número e
+um local no corpo, os laudos continham apenas a localização onde a lesão havia ocorrido. Essa inconsistência poderia
+levar a associações incorretas em casos em que mais de uma lesão tenha se manifestado na mesma parte do corpo. Para
+lidar com este problema, foram contabilizados somente os laudos e lesões não ambíguos. Em alguns casos, as lesões
+poderiam estar na mesma parte do corpo e também apresentar laudos idênticos, nessas situações as lesões e os laudos
+foram contabilizados.
+
+A próxima parte do processo envolveu a associação entre as imagens e os laudos. Para cada lesão, todas as suas imagens
+foram associadas com uma cópia do laudo, assim, os dados passaram a ser representados por pares de imagens e laudos em
+uma associação de 1:1, resultando em 5988 pares. As imagens foram reescaladas para que o tamanho da maior dimensão
+fosse de no máximo 1024 pixels. Essa limitação no tamanho foi aplicada para contornar a falta de memória no sistema
+durante o treinamento.
+
+A este ponto no processo, os dados de cada par de imagem e laudo eram os seguintes:
+
+\begin{itemize}
+    \item \ac{ID} do exame;
+    \item Referência à imagem;
+    \item Laudo:
+          \begin{itemize}
+              \item Lesões primárias;
+              \item Lesões secundárias;
+              \item Colorações;
+              \item Morfologias;
+              \item Tamanho;
+              \item Local;
+              \item Distribuições;
+              \item Classificação da lesão de pele;
+              \item Classificação de risco;
+              \item Conclusão;
+              \item Conclusões sobre a lesão.
+          \end{itemize}
+\end{itemize}
+
+Apenas os campos de classificação da lesão de pele, classificação de risco, conclusão e conclusões sobre a lesão foram
+utilizados, os demais foram removidos do conjunto de dados. Ademais, os pares com lesões que possuíam menos de 15
+ocorrências foram removidos, pois foram considerados como \textit{outliers} devido à baixa representatividade. Após a
+filtragem, restaram 5903 pares. A estrutura de cada par no conjunto de dados filtrado é a seguinte:
+
+\begin{itemize}
+    \item \ac{ID} do exame;
+    \item Referência à imagem;
+    \item Laudo:
+          \begin{itemize}
+              \item Classificação da lesão de pele;
+              \item Classificação de risco;
+              \item Conclusão;
+              \item Conclusões sobre a lesão.
+          \end{itemize}
+\end{itemize}
+
+As classes de lesões de pele podem se referir a uma ou mais lesões, sendo que a classe mais comum específica que a
+lesão na imagem deve ser avaliada por um dermatologista presencialmente. As classificações de risco se referem à
+gravidade e encaminhamento do diagnóstico. Por fim, o campo de conclusão oferece um diagnóstico detalhado e
+recomendações, enquanto o campo de conclusões sobre a lesão apresenta uma descrição ou diagnóstico curto.
+
+A distribuição de classes das lesões de pele é apresentada na \autoref{fig:skin_lesion_classes}. A legenda está
+disponível na \autoref{tab:skin_lesion_classes_legend}. A distribuição da classificação de risco também pode ser
+conferida na \autoref{fig:risk_classes}, com a legenda na \autoref{tab:risk_classes_legend}.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Distribuição das classes de lesões de pele em ordem decrescente.}
+    \includegraphics[width=1\columnwidth,keepaspectratio]{images/skin_lesion_classes.png}
+    \label{fig:skin_lesion_classes}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{table}[ht]
+    \caption{\small Legenda das classes de lesões de pele.}
+    \centering
+    \begin{tabular}{l|l}
+        \hline
+        Número             & Classe de lesão de pele                                                  \\ \hline
+        1                  & Lesões de pele que necessitam de avaliação presencial com dermatologista \\ \hline
+        2                  & Câncer de pele Não Melanoma (CEC ou CBC)                                 \\ \hline
+        3                  & Ceratose seborreica                                                      \\ \hline
+        4                  & Ceratoses solares/actínicas                                              \\ \hline
+        5                  & Nevo melanocítico                                                        \\ \hline
+        6                  & Outras                                                                   \\ \hline
+        7                  & Fotodano crônico                                                         \\ \hline
+        8                  & Dermatite de Contato                                                     \\ \hline
+        \multirow{2}{*}{9} & Lesões de pele que necessitam de avaliação presencial com dermatologista \\
+                           & pediátrico                                                               \\ \hline
+        10                 & Psoríase moderada a grave                                                \\ \hline
+        11                 & Lesões de pele benignas com indicação de tratamento cirúrgico            \\ \hline
+        12                 & Outras dermatoses                                                        \\ \hline
+        13                 & Câncer de pele Melanoma                                                  \\ \hline
+        14                 & Verrugas Virais                                                          \\ \hline
+        15                 & Tineas                                                                   \\ \hline
+        16                 & Psoríase leve                                                            \\ \hline
+        17                 & Anexos/alopécias                                                         \\ \hline
+        18                 & Pitiríase Versicolor                                                     \\ \hline
+        19                 & Dermatite Atópica                                                        \\ \hline
+        20                 & Acne                                                                     \\ \hline
+        21                 & Asteatose Cutânea                                                        \\ \hline
+        22                 & Melasma                                                                  \\ \hline
+        23                 & Anexos/onicoses                                                          \\ \hline
+        24                 & Escabiose                                                                \\ \hline
+        25                 & Molusco Contagioso                                                       \\ \hline
+        26                 & Foliculite                                                               \\ \hline
+        27                 & Dermatite Seborreica                                                     \\ \hline
+        28                 & Líquen simples crônico (Neurodermite)                                    \\ \hline
+        29                 & Eczema de Estase                                                         \\ \hline
+        30                 & Eczemas                                                                  \\ \hline
+        31                 & Prurido                                                                  \\ \hline
+        32                 & Rosácea                                                                  \\ \hline
+        33                 & Colagenoses                                                              \\ \hline
+        34                 & Estrófulo                                                                \\ \hline
+    \end{tabular}
+    \label{tab:skin_lesion_classes_legend}
+    \fonte{Autoria própria}
+\end{table}
+
+\clearpage
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Distribuição das classificações de risco em ordem decrescente.}
+    \includegraphics[width=0.9\columnwidth,keepaspectratio]{images/risk_classes.png}
+    \label{fig:risk_classes}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{table}[ht]
+    \caption{\small Legenda das classificações de risco.}
+    \centering
+    \begin{tabular}{l|l}
+        \hline
+        Rótulo                   & Classificação de risco                              \\ \hline
+        \multirow{2}{*}{BRANCA}  & BRANCA - SEM NECESSIDADE DE INTERVENÇÃO OU          \\
+                                 & ACOMPANHAMENTO                                      \\ \hline
+        AZUL                     & AZUL - TRATAMENTO NA UNIDADE BÁSICA DE SAÚDE (UBS)  \\ \hline
+        VERDE                    & VERDE - AVALIAÇÃO CLÍNICO-CIRURGIA COM ESPECIALISTA \\ \hline
+        \multirow{2}{*}{AMARELA} & AMARELA - ENCAMINHAMENTO COM PRIORIDADE PARA        \\
+                                 & O AMBULATÓRIO DE REFERÊNCIA TERCIÁRIO               \\ \hline
+    \end{tabular}
+    \label{tab:risk_classes_legend}
+    \fonte{Autoria própria}
+\end{table}
+
+Por fim, o conjunto de dados foi seccionado entre um conjunto de treinamento com 80\% dos dados e um de testes com
+20\%. A divisão foi feita de forma estratificada com o método \textit{k-fold} com o agrupamento baseado nos \acp{ID}
+dos exames. Este método de divisão garante que os pares de imagens e laudos de um mesmo exame fiquem no mesmo
+subconjunto de dados, evitando o vazamento de dados, onde o modelo é treinado com pares extremamente similares aos
+do conjunto de teste \cite{ghani2013proceedings}. No total, 4736 pares foram destinados ao conjunto de dados de
+treinamento, enquanto 1167 pares foram para o conjunto de testes.
+
+A criação de um terceiro conjunto de validação, como o utilizado na etapa inicial de desenvolvimento, foi considerada
+desnecessária. A etapa final realiza apenas uma iteração de treinamentos com hiperparâmetros pré-definidos, evitando
+a necessidade de validações e ajustes durante a execução desta etapa.
+
+\clearpage
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small processo de sanitização e preparação do conjunto de dados. 1: Seleção das lesões de aproximação. 2:
+    Sanitização e estruturação dos laudos. 3: Pareamento entre imagens e laudos. 4: Filtragem e remoção de campos
+    desnecessários dos laudos. 5: Seccionamento do conjunto de dados.}
+    \includegraphics[width=1\columnwidth,keepaspectratio]{images/dataset_building.pdf}
+    \label{fig:dataset_building}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\subsubsection{Construção do Conjunto de Dados no Modelo Conversacional}
+
+Para a etapa final do desenvolvimento, o diálogo foi implementado em português. O padrão de pergunta e resposta pode
+ser conferido abaixo:
+
+\begin{dialogue}
+    \speak{Usuário} Classifique a lesão de pele na imagem, informando a classificação da lesão e classificação de
+    risco. \\
+    Por fim, inclua uma breve conclusão sobre o diagnóstico. \\
+    As opções de classificação de lesões de pele são: \textbf{<opções de lesões de pele>}. \\
+    As opções de classificação de risco são: \textbf{<opções de classificações de risco>}. \\
+    Utilize a seguinte formatação para a resposta: \\ \\
+    Classificação: <...>. \\
+    Classificação de risco: <...>. \\
+    Conclusão sobre a lesão: <...>. \\
+    Conclusão: <...>. \\
+    \textbf{<imagem>} \\
+    \speak{Modelo} Classificação: \textbf{<lesão de pele>}. \\
+    Classificação de risco: \textbf{<classificação de risco>}. \\
+    Conclusão sobre a lesão: \textbf{<conclusão sobre a lesão>}. \\
+    Conclusão: \textbf{<conclusão>}.
+\end{dialogue}
+
+As opções de classificação de lesões de pele e de risco são oferecidas na pergunta, sendo que elas correspondem às
+lesões e classificações de risco existentes no conjunto de dados. Para realizar o treinamento com \textit{fine-tuning},
+o padrão de diálogo é preenchido com os dados do conjunto de treinamento.
+
+\subsection{\textit{Fine-tuning}}
+
+\subsection{Análise dos Resultados Finais}
