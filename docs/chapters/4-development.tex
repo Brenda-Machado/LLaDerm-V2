@@ -21,8 +21,8 @@ imagens de lesão de pele advindas de dermatoscopia.
 \subsection{Conjunto de Dados}
 
 Para os experimentos iniciais, utilizou-se o conjunto de dados \ac{HAM10000} de \textcite{tschandl2018ham10000}, que
-possui 13354 imagens de dermatoscopia com informações como a doença causadora da lesão de pele, a idade do paciente,
-sexo e localização da lesão.
+possui 13354 imagens de dermatoscopia com resolução de \begin{math}600 \times 450\end{math} pixels com informações como
+a doença causadora da lesão de pele, a idade do paciente, sexo e localização da lesão.
 
 O conjunto de dados é separado nas seções de treinamento, teste e validação, que possuem 9577, 1285 e 2492 imagens,
 respectivamente. A \autoref{tab:ham10000_proportion} apresenta as proporções entre as categorias de lesões de pele. Os
@@ -88,13 +88,13 @@ na \autoref{tab:qlora_500_config}, alguns deles foram omitidos por serem menos r
         \hline
         Hiperparâmetro                             & Valor                                  \\ \hline
         Camadas e módulos treinados                & Visão, linguagem, atenção e \ac{MLP}   \\
-        Rank                                       & 32                                     \\
+        \textit{Rank}                              & 32                                     \\
         Alfa (\begin{math}\alpha_{LoRA}\end{math}) & 32                                     \\
         Dropout                                    & 0,1                                    \\
         \ac{rsLoRA}                                & Sim                                    \\ \hline
         Taxa de aprendizado                        & \begin{math}2 \times 10^{-4}\end{math} \\
         Razão de aquecimento                       & 0,03                                   \\
-        Tipo de escalonador da taxa de aprendizado & Cosseno com reinícios                  \\
+        Escalonador da taxa de aprendizado         & Cosseno com reinícios                  \\
         Decaimento de peso                         & 0,01                                   \\
         Épocas                                     & 5                                      \\
         Passos a cada validação                    & 50                                     \\
@@ -179,7 +179,7 @@ informações sobre o treinamento podem ser conferidas na \autoref{tab:qlora_100
         Parâmetros treináveis       & 134348800 \\
         Tempo de treinamento (min)  & 32,08     \\
         Passos                      & 225       \\
-        Memória máxima alocada (GB) & 18,695    \\ \hline
+        Memória máxima alocada (GB) & 18,69     \\ \hline
     \end{tabular}
     \label{tab:qlora_1000_training}
     \fonte{Autoria própria}
@@ -194,7 +194,7 @@ informações sobre o treinamento podem ser conferidas na \autoref{tab:qlora_100
         Parâmetros treináveis       & 67174400 \\
         Tempo de treinamento (min)  & 41,76    \\
         Passos                      & 280      \\
-        Memória máxima alocada (GB) & 31,965   \\ \hline
+        Memória máxima alocada (GB) & 31,96    \\ \hline
     \end{tabular}
     \label{tab:lora_1000_training}
     \fonte{Autoria própria}
@@ -233,7 +233,7 @@ anteriormente. As informações sobre o treinamento podem ser vistas na \autoref
         Parâmetros treináveis       & 134348800 \\
         Tempo de treinamento (min)  & 90,77     \\
         Passos                      & 450       \\
-        Memória máxima alocada (GB) & 18,744    \\ \hline
+        Memória máxima alocada (GB) & 18,74     \\ \hline
     \end{tabular}
     \label{tab:qlora_2000_training}
     \fonte{Autoria própria}
@@ -268,13 +268,13 @@ utilizado somente o \ac{QLoRA} no treinamento com 9500 amostras. Os dados dos tr
         \hline
         Hiperparâmetro                             & Valor                                  \\ \hline
         Camadas e módulos treinados                & Visão, linguagem, atenção e \ac{MLP}   \\
-        Rank                                       & 64                                     \\
+        \textit{Rank}                              & 64                                     \\
         Alfa (\begin{math}\alpha_{LoRA}\end{math}) & 64                                     \\
         Dropout                                    & 0,05                                   \\
         \ac{rsLoRA}                                & Sim                                    \\ \hline
         Taxa de aprendizado                        & \begin{math}1 \times 10^{-4}\end{math} \\
         Razão de aquecimento                       & 0                                      \\
-        Tipo de escalonador da taxa de aprendizado & Constante                              \\
+        Escalonador da taxa de aprendizado         & Constante                              \\
         Decaimento de peso                         & 0,01                                   \\
         Épocas                                     & 3                                      \\
         Passos a cada validação                    & A cada 5\% dos passos                  \\
@@ -842,5 +842,194 @@ lesões e classificações de risco existentes no conjunto de dados. Para realiz
 o padrão de diálogo é preenchido com os dados do conjunto de treinamento.
 
 \subsection{\textit{Fine-tuning}}
+
+% TODO: Ver se pode usar textcite com o Unsloth
+O \textit{fine-tuning} nesta etapa é similar ao da etapa inicial, porém, como pode ser visto na
+\autoref{tab:final_config}, há divergências nos hiperparâmetros e na estratégia de treinamento. O tamanho do lote por
+dispositivo e o passo de acumulação de gradiente foram alterados para garantir que a memória do sistema seja
+suficiente, já que o novo conjunto de dados possui pares de imagens e texto que demandam mais memória. A taxa de
+aprendizado, escalonador de taxa de aprendizado e razão de aquecimento foram alterados com base em
+recomendações da documentação do \textcite{unsloth2025lora} e do guia de \textit{fine-tuning} de
+\textcite{parthasarathy2024ultimate}. Por fim, o comprimento máximo da sequência de \textit{tokens} foi limitado a
+2190. Esse valor foi escolhido com base em uma contagem do número de \textit{tokens} em cada par do conjunto de
+dados, onde foi determinado que nenhum par de imagem e laudo possui mais de 2183 \textit{tokens}.
+
+\begin{table}[ht]
+    \caption{\small Hiperparâmetros para o \textit{fine-tuning} da etapa final. A primeira seção se refere às
+    configurações específicas de \ac{PEFT}, enquanto a segunda se refere ao treinamento em geral.}
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Hiperparâmetro                     & Valor                                  \\ \hline
+        Camadas e módulos treinados        & Visão, linguagem, atenção e \ac{MLP}   \\
+        Dropout                            & 0,1                                    \\
+        \ac{rsLoRA}                        & Sim                                    \\ \hline
+        Tamanho do lote por dispositivo    & 4                                      \\
+        Passo de acumulação de gradiente   & 1                                      \\
+        Taxa de aprendizado                & \begin{math}1 \times 10^{-4}\end{math} \\
+        Decaimento de peso                 & 0,01                                   \\
+        Escalonador da taxa de aprendizado & Linear                                 \\
+        Razão de aquecimento               & 0,05                                   \\
+        Otimizador                         & \ac{Adam} paginado de 32 bits          \\
+        Tipo numérico                      & \ac{BF16}                              \\
+        Comprimento máximo da sequência    & 2190                                   \\ \hline
+    \end{tabular}
+    \label{tab:final_config}
+    \fonte{Autoria própria}
+\end{table}
+
+Foram treinados 8 modelos com variações nos hiperparâmetros de \textit{rank} do \ac{LoRA},
+\begin{math}\alpha_{LoRA}\end{math} e número de épocas. Essa estratégia foi utilizada para buscar hiperparâmetros
+próximos dos ideais para o novo conjunto de dados de treinamento. O intervalo de busca para o \textit{rank} e
+\begin{math}\alpha_{LoRA}\end{math} constitui-se dos valores 64 e 128 para os dois hiperparâmetros, baseando-se no
+trabalho de \textcite{tribes2023hyperparameter}, que indica que valores maiores levam a modelos com maior desempenho.
+Para o número de épocas, o intervalo utilizado foi idealizado com base nos valores recomendados pela documentação do
+Unsloth, variando entre 2, 3, 4 e 5 épocas.
+
+Os modelos foram treinados apenas com \ac{QLoRA} inicialmente. O treinamento com \ac{LoRA} foi realizado apenas uma
+vez, utilizando os hiperparâmetros ideais encontrados após o treinamento com \ac{QLoRA} e os testes de classificação. A
+\autoref{tab:final_training} apresenta os dados dos treinamentos realizados.
+
+\begin{table}[ht]
+    \caption{\small Tempo e memória utilizados durante os treinamentos com \ac{QLoRA}.}
+    \centering
+    \begin{tabular}{c|c|c|c}
+        \hline
+        \textit{Rank} e \begin{math}\alpha_{LoRA}\end{math} & Número de épocas & Tempo (min)
+                                                            & Memória (GB)
+        \\ \hline
+        \multirow{4}{*}{64}                                 & 2                & 189,82      &
+        46,03                                                                                  \\
+                                                            & 3                & 284,18      &
+        46,03                                                                                  \\
+                                                            & 4                & 379,06      &
+        46,03                                                                                  \\
+                                                            & 5                & 473,66      &
+        46,03                                                                                  \\ \hline
+        \multirow{4}{*}{128}                                & 2                & 191,17      &
+        47,57                                                                                  \\
+                                                            & 3                & 286,83      &
+        47,57                                                                                  \\
+                                                            & 4                & 381,56      &
+        47,57                                                                                  \\
+                                                            & 5                & 477,56      &
+        47,57                                                                                  \\ \hline
+    \end{tabular}
+    \label{tab:final_training}
+    \fonte{Autoria própria}
+\end{table}
+
+O \textit{loss} de treinamento para todos os casos pode ser conferido nas figuras a seguir:
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 2 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_18.png}
+    \label{fig:loss_qlora_final_18}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 3 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_20.png}
+    \label{fig:loss_qlora_final_20}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 4 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_22.png}
+    \label{fig:loss_qlora_final_22}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 5 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_24.png}
+    \label{fig:loss_qlora_final_24}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 2 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_19.png}
+    \label{fig:loss_qlora_final_19}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 3 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_21.png}
+    \label{fig:loss_qlora_final_21}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 4 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_23.png}
+    \label{fig:loss_qlora_final_23}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 5 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_25.png}
+    \label{fig:loss_qlora_final_25}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\clearpage
+
+Após a realização dos testes, a acurácia na classificação de lesões de pele de cada modelo foi obtida. Os resultados
+podem ser vistos na \autoref{tab:final_accuracies}. O modelo treinado com o \textit{rank} e
+\begin{math}\alpha_{LoRA}\end{math} de 128 e com 3 épocas teve o melhor desempenho, atingindo 45,2\% de acurácia. Com
+base nesses hiperparâmetros, um treinamento com \ac{LoRA} foi feito, levando no total 276,46 minutos para concluir e
+utilizando 59,91 GB de memória. O gráfico na \autoref{fig:loss_lora_final_21} apresenta a \textit{loss} do treinamento
+com \ac{LoRA}.
+
+\begin{table}[ht]
+    \caption{\small Acurácia dos modelos treinados com \ac{QLoRA}.}
+    \centering
+    \begin{tabular}{c|c|c}
+        \hline
+        \textit{Rank} e \begin{math}\alpha_{LoRA}\end{math} & Número de épocas & Acurácia (\%) \\ \hline
+        \multirow{4}{*}{64}                                 & 2                & 42,9          \\
+                                                            & 3                & 43,9          \\
+                                                            & 4                & 42,5          \\
+                                                            & 5                & 43,6          \\ \hline
+        \multirow{4}{*}{128}                                & 2                & 44,6          \\
+                                                            & 3                & 45,2          \\
+                                                            & 4                & 44,0          \\
+                                                            & 5                & 41,5          \\ \hline
+    \end{tabular}
+    \label{tab:final_accuracies}
+    \fonte{Autoria própria}
+\end{table}
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{LoRA}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 3 épocas.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_final_21.png}
+    \label{fig:loss_lora_final_21}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\subsection{Testes}
 
 \subsection{Análise dos Resultados Finais}
