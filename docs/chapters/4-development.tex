@@ -814,7 +814,7 @@ a necessidade de validações e ajustes durante a execução desta etapa.
     \fonte{Autoria própria.}
 \end{figure}
 
-\subsubsection{Construção do Conjunto de Dados no Modelo Conversacional}
+\subsubsection{Construção do Conjunto de Dados no Modelo Conversacional} \label{sec:dialogue}
 
 Para a etapa final do desenvolvimento, o diálogo foi implementado em português. O padrão de pergunta e resposta pode
 ser conferido abaixo:
@@ -1032,4 +1032,302 @@ com \ac{LoRA}.
 
 \subsection{Testes}
 
+Os testes foram realizados através da aplicação de perguntas geradas com base no diálogo da \autoref{sec:dialogue}.
+Para os modelos que passaram pelo \textit{fine-tuning}, foram realizados primeiramente testes com perguntas geradas a
+partir do conjunto de teste. O conjunto de treinamento foi utilizado posteriormente para a geração de perguntas,
+buscando avaliar o \textit{overfitting}. O modelo base, por sua vez, foi testado apenas com o conjunto de teste. A
+temperatura dos modelos foi configurada para \begin{math}5 \times 10^{-3}\end{math} para garantir a objetividade das
+respostas.
+
 \subsection{Análise dos Resultados Finais}
+
+Primeiramente, a análise do modelo base \ac{LLaMA}-3.2-11B-Vision-Instruct será apresentada a fim de avaliar o
+desempenho do modelo sem o \textit{fine-tuning}. Posteriormente, os modelos treinados com \ac{QLoRA} e \ac{LoRA} que
+obtiveram a melhor acurácia serão analisados.
+
+\subsubsection{Análise do modelo LLaMA-3.2-11B-Vision-Instruct}
+
+A versão quantizada do \ac{LLaMA} gerou 1104 respostas válidas para as perguntas, seguindo o formato de resposta
+precisamente 94,6\% das vezes. Entretanto, as respostas inválidas não divergiram tanto das respostas válidas, sendo que
+a maioria delas estavam incorretas em pequenos detalhes de formatação. Frequentemente, essas respostas possuíam
+asteriscos para a formatação em \textit{markdown} no início das seções. Um exemplo de resposta inválida pode ser visto
+abaixo:
+
+\begin{dialogue}
+    \speak{Modelo} **Classificação:** Nevo melanocítico \\
+    **Classificação de risco:** BRANCA - SEM NECESSIDADE DE
+    INTERVENÇÃO OU ACOMPANHAMENTO \\ \\
+    **Conclusão sobre a lesão:** A lesão apresentada na imagem é caracterizada por um
+    pequeno nódulo de cor marrom, com bordas bem definidas, localizado na região do tronco. O tamanho da lesão é de
+    aproximadamente 5 mm de diâmetro. A lesão não apresenta sinais de inflamação ou dor. \\ \\
+    **Conclusão:** A lesão apresentada na imagem é compatível com um nevo melanocítico, que é um tipo de lesão benigna
+    da pele. O nevo melanocítico é uma lesão que se desenvolve na camada superior da pele e é causada pela
+    multiplicação anormal de células melanocíticas. Embora seja uma lesão benigna, é importante monitorar o nevo
+    melanocítico para garantir que não se transforme em um câncer de pele. A classificação de risco BRANCA indica que
+    não há necessidade de intervenção ou acompanhamento imediato, mas é importante realizar um acompanhamento regular
+    para monitorar o desenvolvimento da lesão.
+\end{dialogue}
+
+Na classificação de lesões de pele, o \acp{MLLM} atingiu 14,8\% de acurácia. A matriz de confusão na
+\autoref{fig:confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_skin_lesions} apresenta o padrão de
+classificação do modelo. A maioria das predições tende a classificar as lesões como ``Lesões de pele que necessitam de
+avaliação presencial com dermatologista'' ou ``Ceratose seborreica''.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Matriz de confusão da classificação das lesões de pele para o \ac{LLaMA}-3.2-11B-Vision-Instruct
+    quantizado. A classe I denota as respostas inválidas. A legenda das lesões está na
+    \autoref{tab:skin_lesion_classes_legend}.}
+
+    \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_skin_lesions.png}
+    \label{fig:confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_skin_lesions}
+    \fonte{Autoria própria.}
+\end{figure}
+
+A precisão, \textit{recall} e pontuação F1 para cada classe de lesão são apresentados na
+\autoref{tab:llama_quantized_skin_lesion_classification_report}. Com estas métricas, fica evidente que o \ac{LLaMA}
+quantizado é enviesado para a previsão da primeira e terceira classe. O \textit{recall} de 0,42 indica que 42\% das
+ocorrências da classe 1 foram classificadas corretamente, mas a previsão de 0,15 demonstra que 85\% das lesões
+classificadas como pertencentes à classe 1 não pertenciam de fato àquela classe. Um padrão similar entre
+\textit{recall} e precisão pode ser observado na classe 3, demonstrando que o modelo base não é capaz de classificar
+adequadamente as lesões de pele.
+
+\begin{table}[ht]
+    \caption{\small Métricas da classificação das lesões de pele com o \ac{LLaMA}-3.2-11B-Vision-Instruct quantizado.}
+    \centering
+    \begin{tabular}{l|c|c|c}
+        \hline
+        Número da lesão & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
+        1               & 0,15     & 0,42            & 0,28         \\
+        2               & 0,50     & 0,10            & 0,17         \\
+        3               & 0,16     & 0,28            & 0,20         \\
+        4               & 0,11     & 0,09            & 0,07         \\
+        5               & 0,26     & 0,12            & 0,16         \\
+        6               & 0,00     & 0,00            & 0,00         \\
+        7               & 0,00     & 0,00            & 0,00         \\
+        8               & 0,00     & 0,00            & 0,00         \\
+        9               & 0,00     & 0,00            & 0,00         \\
+        10              & 1,00     & 0,08            & 0,15         \\
+        11              & 0,00     & 0,00            & 0,00         \\
+        12              & 0,00     & 0,00            & 0,00         \\
+        13              & 0,13     & 0,08            & 0,10         \\
+        14              & 0,00     & 0,00            & 0,00         \\
+        15              & 0,00     & 0,00            & 0,00         \\
+        16              & 0,00     & 0,00            & 0,00         \\
+        17              & 0,00     & 0,00            & 0,00         \\
+        18              & 0,00     & 0,00            & 0,00         \\
+        19              & 0,00     & 0,00            & 0,00         \\
+        20              & 0,00     & 0,00            & 0,00         \\
+        21              & 0,00     & 0,00            & 0,00         \\
+        22              & 0,00     & 0,00            & 0,00         \\
+        23              & 0,00     & 0,00            & 0,00         \\
+        24              & 0,00     & 0,00            & 0,00         \\
+        25              & 0,00     & 0,00            & 0,00         \\
+        26              & 0,00     & 0,00            & 0,00         \\
+        27              & 0,00     & 0,00            & 0,00         \\
+        28              & 0,00     & 0,00            & 0,00         \\
+        29              & 0,00     & 0,00            & 0,00         \\
+        30              & 0,00     & 0,00            & 0,00         \\
+        31              & 0,00     & 0,00            & 0,00         \\
+        32              & 0,00     & 0,00            & 0,00         \\
+        33              & 0,00     & 0,00            & 0,00         \\
+        34              & 0,00     & 0,00            & 0,00         \\ \hline
+    \end{tabular}
+    \label{tab:llama_quantized_skin_lesion_classification_report}
+    \fonte{Autoria própria}
+\end{table}
+
+A acurácia na classificação de risco foi levemente maior, chegando a 23,4\%. Porém, de forma similar à classificação de
+lesões de pele, a classificação de risco foi desbalanceada e considerou a maioria das ocorrências como de categoria
+branca. A matriz de confusão na
+\autoref{fig:confusion_matrix_llama_3.confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_risk} evidencia
+esta constatação. A \autoref{tab:llama_quantized_risk_classification_report} também reforça esta observação. 68\% dos
+casos com risco na categoria branca foram corretamente classificados, mas somente 26\% das classificações como
+categoria branca estão corretas.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Matriz de confusão da classificação de risco para o \ac{LLaMA}-3.2-11B-Vision-Instruct quantizado.
+    A classe I denota as respostas inválidas. A legenda das classificações está na \autoref{tab:risk_classes_legend}.}
+
+    \includegraphics[width=0.75\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_risk.png}
+    \label{fig:confusion_matrix_llama_3.confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_risk}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{table}[ht]
+    \caption{\small Métricas da classificação de risco com o \ac{LLaMA}-3.2-11B-Vision-Instruct quantizado.}
+    \centering
+    \begin{tabular}{l|c|c|c}
+        \hline
+        Rótulo da classificação de risco & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
+        BRANCA                           & 0,26     & 0,68            & 0,38         \\
+        AZUL                             & 0,00     & 0,00            & 0,00         \\
+        VERDE                            & 0,11     & 0,03            & 0,05         \\
+        AMARELA                          & 0,42     & 0,13            & 0,20         \\ \hline
+    \end{tabular}
+    \label{tab:llama_quantized_risk_classification_report}
+    \fonte{Autoria própria}
+\end{table}
+
+Os textos das respostas geradas também foram analisados com métricas de \ac{PLN}, especificamente, foram utilizados o
+\ac{BLEU}, \ac{ROUGE} e \ac{METEOR}. A \autoref{tab:llama_quantized_nlp_metrics} apresenta os valores destas métricas.
+O baixo valor do \ac{BLEU} acumulado com diferentes n-gramas indica uma baixa precisão no uso do vocabulário e
+estrutura esperados. Indicando que uma parte considerável do texto gerado não está relacionado com o texto esperado. O
+\textit{recall} medido com \ac{ROUGE} é levemente maior, demonstrando que certas partes do texto esperado aparecem no
+texto gerado. Por fim, o valor da métrica \ac{METEOR}, que correlaciona-se melhor com a interpretação humana, sugere
+que o texto gerado possui uma menor qualidade e está distante do esperado.
+
+\begin{table}[ht]
+    \caption{\small Métricas de \ac{PLN} do texto das respostas geradas pelo \ac{LLaMA}-3.2-11B-Vision-Instruct
+    quantizado.}
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Métrica                        & Valor \\ \hline
+        \ac{BLEU}-1                    & 0,181 \\
+        \ac{BLEU}-2                    & 0,125 \\
+        \ac{BLEU}-3                    & 0,099 \\
+        \ac{BLEU}-4                    & 0,081 \\ \hline
+        \ac{ROUGE}-1 (\textit{recall}) & 0,422 \\
+        \ac{ROUGE}-L (\textit{recall}) & 0,330 \\ \hline
+        \ac{METEOR}                    & 0,211 \\ \hline
+    \end{tabular}
+    \label{tab:llama_quantized_nlp_metrics}
+    \fonte{Autoria própria}
+\end{table}
+
+O \ac{LLaMA}-3.2-11B-Vision-Instruct não quantizado gerou 1150 respostas válidas, seguindo o padrão 98,5\% das vezes. O
+desempenho geral do modelo foi similar ao da sua versão quantizada. A acurácia na classificação das lesões de pele foi
+de 17\%, 2,2\% a mais do que a acurácia da versão quantizada. Como pode ser visto na
+\autoref{fig:confusion_matrix_llama_3.2_11b_vision_instruct_final_skin_lesions}, o modelo classificou a grande maioria
+das lesões como ``Ceratose seborreica'', porém, algumas lesões foram corretamente classificadas como ``Câncer de pele
+Melanoma''. A \autoref{tab:llama_skin_lesion_classification_report} também apresenta um comportamento de classificação
+similar ao da versão quantizada, divergindo apenas nos pontos já observados na matriz de confusão.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Matriz de confusão da classificação das lesões de pele para o \ac{LLaMA}-3.2-11B-Vision-Instruct
+    não quantizado. A classe I denota as respostas inválidas. A legenda das lesões está na
+    \autoref{tab:skin_lesion_classes_legend}.}
+
+    \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_final_skin_lesions.png}
+    \label{fig:confusion_matrix_llama_3.2_11b_vision_instruct_final_skin_lesions}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{table}[ht]
+    \caption{\small Métricas da classificação das lesões de pele com o \ac{LLaMA}-3.2-11B-Vision-Instruct não
+    quantizado.}
+    \centering
+    \begin{tabular}{l|c|c|c}
+        \hline
+        Número da lesão & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
+        1               & 0,08     & 0,02            & 0,03         \\
+        2               & 0,33     & 0,27            & 0,30         \\
+        3               & 0,14     & 0,65            & 0,23         \\
+        4               & 0,00     & 0,00            & 0,00         \\
+        5               & 0,44     & 0,07            & 0,12         \\
+        6               & 0,00     & 0,00            & 0,00         \\
+        7               & 0,00     & 0,00            & 0,00         \\
+        8               & 0,00     & 0,00            & 0,00         \\
+        9               & 0,00     & 0,00            & 0,00         \\
+        10              & 1,00     & 0,08            & 0,15         \\
+        11              & 0,00     & 0,00            & 0,00         \\
+        12              & 0,00     & 0,00            & 0,00         \\
+        13              & 0,29     & 0,48            & 0,36         \\
+        14              & 0,00     & 0,00            & 0,00         \\
+        15              & 0,00     & 0,00            & 0,00         \\
+        16              & 0,00     & 0,00            & 0,00         \\
+        17              & 0,00     & 0,00            & 0,00         \\
+        18              & 0,00     & 0,00            & 0,00         \\
+        19              & 0,00     & 0,00            & 0,00         \\
+        20              & 0,50     & 0,08            & 0,13         \\
+        21              & 0,00     & 0,00            & 0,00         \\
+        22              & 0,00     & 0,00            & 0,00         \\
+        23              & 0,00     & 0,00            & 0,00         \\
+        24              & 0,00     & 0,00            & 0,00         \\
+        25              & 0,00     & 0,00            & 0,00         \\
+        26              & 0,00     & 0,00            & 0,00         \\
+        27              & 0,00     & 0,00            & 0,00         \\
+        28              & 0,00     & 0,00            & 0,00         \\
+        29              & 0,00     & 0,00            & 0,00         \\
+        30              & 0,00     & 0,00            & 0,00         \\
+        31              & 0,00     & 0,00            & 0,00         \\
+        32              & 0,00     & 0,00            & 0,00         \\
+        33              & 0,00     & 0,00            & 0,00         \\
+        34              & 0,00     & 0,00            & 0,00         \\ \hline
+    \end{tabular}
+    \label{tab:llama_skin_lesion_classification_report}
+    \fonte{Autoria própria}
+\end{table}
+
+Com base na matriz da confusão da
+\autoref{fig:confusion_matrix_llama_3.confusion_matrix_llama_3.2_11b_vision_instruct_final_risk} e nos dados da
+\autoref{tab:llama_risk_classification_report}, observa-se que a versão não quantizada não apresenta divergências
+consideráveis na sua forma de classificação. A acurácia na classificação das categorias de risco nesta versão foi de
+27,4\%, ultrapassando em 4\% a versão quantizada.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Matriz de confusão da classificação de risco para o \ac{LLaMA}-3.2-11B-Vision-Instruct não
+    quantizado. A classe I denota as respostas inválidas. A legenda das classificações está na
+    \autoref{tab:risk_classes_legend}.}
+
+    \includegraphics[width=0.75\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_final_risk.png}
+    \label{fig:confusion_matrix_llama_3.confusion_matrix_llama_3.2_11b_vision_instruct_final_risk}
+    \fonte{Autoria própria.}
+\end{figure}
+
+\begin{table}[ht]
+    \caption{\small Métricas da classificação de risco com o \ac{LLaMA}-3.2-11B-Vision-Instruct não quantizado.}
+    \centering
+    \begin{tabular}{l|c|c|c}
+        \hline
+        Rótulo da classificação de risco & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
+        BRANCA                           & 0,26     & 0,75            & 0,38         \\
+        AZUL                             & 0,33     & 0,01            & 0,01         \\
+        VERDE                            & 0,00     & 0,00            & 0,00         \\
+        AMARELA                          & 0,39     & 0,26            & 0,31         \\ \hline
+    \end{tabular}
+    \label{tab:llama_risk_classification_report}
+    \fonte{Autoria própria}
+\end{table}
+
+Por fim, as métricas de \ac{PLN} da \autoref{tab:llama_nlp_metrics} apresentam uma leve melhora em relação às métricas
+da versão quantizada.
+
+\begin{table}[ht]
+    \caption{\small Métricas de \ac{PLN} do texto das respostas geradas pelo \ac{LLaMA}-3.2-11B-Vision-Instruct
+    não quantizado.}
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Métrica                        & Valor \\ \hline
+        \ac{BLEU}-1                    & 0,192 \\
+        \ac{BLEU}-2                    & 0,129 \\
+        \ac{BLEU}-3                    & 0,102 \\
+        \ac{BLEU}-4                    & 0,083 \\ \hline
+        \ac{ROUGE}-1 (\textit{recall}) & 0,417 \\
+        \ac{ROUGE}-L (\textit{recall}) & 0,313 \\ \hline
+        \ac{METEOR}                    & 0,221 \\ \hline
+    \end{tabular}
+    \label{tab:llama_nlp_metrics}
+    \fonte{Autoria própria}
+\end{table}
+
+\subsubsection{Análise do modelo treinado com QLoRA}
+
+O modelo treinado com \ac{QLoRA} respondeu a todas as perguntas de forma válida e atingiu uma acurácia de 45,2\% na
+classificação de lesões de pele com as perguntas do conjunto de teste, ultrapassando o \ac{LLaMA} base não quantizado
+em 28,2\%. A \autoref{fig:confusion_matrix_lladerm_qlora_final_skin_lesions} apresenta a matriz de confusão da
+classificação das lesões de pele.
+
+\begin{figure}[ht]
+    \centering
+    \caption{\small Matriz de confusão da classificação das lesões de pele para o modelo treinado com \ac{QLoRA}. A
+    classe I denota as respostas inválidas. A legenda das lesões está na \autoref{tab:skin_lesion_classes_legend}.}
+    \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_qlora_final_skin_lesions.png}
+    \label{fig:confusion_matrix_lladerm_qlora_final_skin_lesions}
+    \fonte{Autoria própria.}
+\end{figure}
