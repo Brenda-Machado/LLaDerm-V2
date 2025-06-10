@@ -1093,45 +1093,46 @@ classificadas como pertencentes à classe 1 não pertenciam de fato àquela clas
 adequadamente as lesões de pele.
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação das lesões de pele com o \ac{LLaMA}-3.2-11B-Vision-Instruct quantizado.}
+    \caption{\small Métricas da classificação das lesões de pele com o \ac{LLaMA}-3.2-11B-Vision-Instruct.}
     \centering
-    \begin{tabular}{l|c|c|c}
+    \begin{tabular}{l|c|c|c|c|c|c}
         \hline
-        Número da lesão & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
-        1               & 0,15     & 0,42            & 0,28         \\
-        2               & 0,50     & 0,10            & 0,17         \\
-        3               & 0,16     & 0,28            & 0,20         \\
-        4               & 0,11     & 0,09            & 0,07         \\
-        5               & 0,26     & 0,12            & 0,16         \\
-        6               & 0,00     & 0,00            & 0,00         \\
-        7               & 0,00     & 0,00            & 0,00         \\
-        8               & 0,00     & 0,00            & 0,00         \\
-        9               & 0,00     & 0,00            & 0,00         \\
-        10              & 1,00     & 0,08            & 0,15         \\
-        11              & 0,00     & 0,00            & 0,00         \\
-        12              & 0,00     & 0,00            & 0,00         \\
-        13              & 0,13     & 0,08            & 0,10         \\
-        14              & 0,00     & 0,00            & 0,00         \\
-        15              & 0,00     & 0,00            & 0,00         \\
-        16              & 0,00     & 0,00            & 0,00         \\
-        17              & 0,00     & 0,00            & 0,00         \\
-        18              & 0,00     & 0,00            & 0,00         \\
-        19              & 0,00     & 0,00            & 0,00         \\
-        20              & 0,00     & 0,00            & 0,00         \\
-        21              & 0,00     & 0,00            & 0,00         \\
-        22              & 0,00     & 0,00            & 0,00         \\
-        23              & 0,00     & 0,00            & 0,00         \\
-        24              & 0,00     & 0,00            & 0,00         \\
-        25              & 0,00     & 0,00            & 0,00         \\
-        26              & 0,00     & 0,00            & 0,00         \\
-        27              & 0,00     & 0,00            & 0,00         \\
-        28              & 0,00     & 0,00            & 0,00         \\
-        29              & 0,00     & 0,00            & 0,00         \\
-        30              & 0,00     & 0,00            & 0,00         \\
-        31              & 0,00     & 0,00            & 0,00         \\
-        32              & 0,00     & 0,00            & 0,00         \\
-        33              & 0,00     & 0,00            & 0,00         \\
-        34              & 0,00     & 0,00            & 0,00         \\ \hline
+              & \multicolumn{3}{c|}{\ac{LLaMA} quantizado} & \multicolumn{3}{c}{\ac{LLaMA} não quantizado}                                                            \\ \hline
+        Lesão & Precisão                                   & \textit{Recall}                               & Pontuação F1 & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
+        1     & 0,15                                       & 0,42                                          & 0,28         & 0,08     & 0,02            & 0,03         \\
+        2     & 0,50                                       & 0,10                                          & 0,17         & 0,33     & 0,27            & 0,30         \\
+        3     & 0,16                                       & 0,28                                          & 0,20         & 0,14     & 0,65            & 0,23         \\
+        4     & 0,11                                       & 0,09                                          & 0,07         & 0,00     & 0,00            & 0,00         \\
+        5     & 0,26                                       & 0,12                                          & 0,16         & 0,44     & 0,07            & 0,12         \\
+        6     & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        7     & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        8     & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        9     & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        10    & 1,00                                       & 0,08                                          & 0,15         & 1,00     & 0,08            & 0,15         \\
+        11    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        12    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        13    & 0,13                                       & 0,08                                          & 0,10         & 0,29     & 0,48            & 0,36         \\
+        14    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        15    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        16    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        17    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        18    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        19    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        20    & 0,00                                       & 0,00                                          & 0,00         & 0,50     & 0,08            & 0,13         \\
+        21    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        22    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        23    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        24    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        25    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        26    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        27    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        28    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        29    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        30    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        31    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        32    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        33    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\
+        34    & 0,00                                       & 0,00                                          & 0,00         & 0,00     & 0,00            & 0,00         \\ \hline
     \end{tabular}
     \label{tab:llama_quantized_skin_lesion_classification_report}
     \fonte{Autoria própria}
@@ -1321,13 +1322,58 @@ da versão quantizada.
 O modelo treinado com \ac{QLoRA} respondeu a todas as perguntas de forma válida e atingiu uma acurácia de 45,2\% na
 classificação de lesões de pele com as perguntas do conjunto de teste, ultrapassando o \ac{LLaMA} base não quantizado
 em 28,2\%. A \autoref{fig:confusion_matrix_lladerm_qlora_final_skin_lesions} apresenta a matriz de confusão da
-classificação das lesões de pele.
+classificação das lesões de pele. Observa-se que o modelo capturou razoavelmente o padrão de classificação.
 
 \begin{figure}[ht]
     \centering
     \caption{\small Matriz de confusão da classificação das lesões de pele para o modelo treinado com \ac{QLoRA}. A
-    classe I denota as respostas inválidas. A legenda das lesões está na \autoref{tab:skin_lesion_classes_legend}.}
+    legenda das lesões está na \autoref{tab:skin_lesion_classes_legend}.}
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_qlora_final_skin_lesions.png}
     \label{fig:confusion_matrix_lladerm_qlora_final_skin_lesions}
     \fonte{Autoria própria.}
 \end{figure}
+
+\begin{table}[ht]
+    \caption{\small Métricas da classificação das lesões de pele com o \ac{LLaMA} treinado com \ac{QLoRA}.}
+    \centering
+    \begin{tabular}{l|c|c|c}
+        \hline
+        Número da lesão & Precisão & \textit{Recall} & Pontuação F1 \\ \hline
+        1               & 0,46     & 0,47            & 0,46         \\
+        2               & 0,55     & 0,68            & 0,61         \\
+        3               & 0,57     & 0,63            & 0,60         \\
+        4               & 0,38     & 0,46            & 0,42         \\
+        5               & 0,31     & 0,60            & 0,41         \\
+        6               & 0,23     & 0,23            & 0,23         \\
+        7               & 0,39     & 0,19            & 0,25         \\
+        8               & 0,45     & 0,16            & 0,24         \\
+        9               & 0,69     & 0,46            & 0,55         \\
+        10              & 0,44     & 0,80            & 0,57         \\
+        11              & 0,00     & 0,00            & 0,00         \\
+        12              & 0,00     & 0,00            & 0,00         \\
+        13              & 1,00     & 0,12            & 0,21         \\
+        14              & 0,27     & 0,25            & 0,26         \\
+        15              & 0,00     & 0,00            & 0,00         \\
+        16              & 0,00     & 0,00            & 0,00         \\
+        17              & 0,08     & 1,00            & 0,14         \\
+        18              & 0,00     & 0,00            & 0,00         \\
+        19              & 0,00     & 0,00            & 0,00         \\
+        20              & 0,57     & 0,30            & 0,40         \\
+        21              & 0,00     & 0,00            & 0,00         \\
+        22              & 0,20     & 0,27            & 0,23         \\
+        23              & 0,25     & 0,60            & 0,35         \\
+        24              & 0,00     & 0,00            & 0,00         \\
+        25              & 0,50     & 0,25            & 0,33         \\
+        26              & 0,00     & 0,00            & 0,00         \\
+        27              & 0,33     & 0,10            & 0,15         \\
+        28              & 0,67     & 0,25            & 0,36         \\
+        29              & 0,00     & 0,00            & 0,00         \\
+        30              & 0,00     & 0,00            & 0,00         \\
+        31              & 0,00     & 0,00            & 0,00         \\
+        32              & 0,00     & 0,00            & 0,00         \\
+        33              & 0,00     & 0,00            & 0,00         \\
+        34              & 0,00     & 0,00            & 0,00         \\ \hline
+    \end{tabular}
+    \label{tab:lladerm_qlora_skin_lesion_classification_report}
+    \fonte{Autoria própria}
+\end{table}
