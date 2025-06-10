@@ -357,7 +357,7 @@ def calculate_classification_report(pairs: list[tuple[str, str]]) -> str:
     y_true = [pair[0] for pair in pairs]
     x_predicted = [pair[1] for pair in pairs]
 
-    return str(classification_report(y_true, x_predicted, zero_division=0, digits=3))
+    return str(classification_report(y_true, x_predicted, zero_division=0, digits=2))
 
 
 def calculate_accuracy(pairs: list[tuple[str, str]]) -> float:
@@ -409,7 +409,8 @@ def create_confusion_matrix(pairs: list[tuple[str, str]],
                             title: str,
                             save_path: str,
                             annotate: bool = True,
-                            format_: str = '.1%') -> None:
+                            format_: str = '.1%',
+                            size: tuple[int, int] = (12, 10)) -> None:
     '''
     Calcula a acurácia e cria uma visualização da matriz de confusão normalizada.
     '''
@@ -417,12 +418,9 @@ def create_confusion_matrix(pairs: list[tuple[str, str]],
     y_true = [pair[0] for pair in pairs]
     x_predicted = [pair[1] for pair in pairs]
 
-    accuracy = accuracy_score(y_true, x_predicted)
-
     cm = confusion_matrix(y_true, x_predicted, labels=labels, normalize='true')
 
-    plt.figure(figsize=(12, 10))
-    # plt.figure(figsize=(8, 6))
+    plt.figure(figsize=size)
     heat_map = heatmap(cm,
                        annot=annotate,
                        fmt=format_,
@@ -433,9 +431,12 @@ def create_confusion_matrix(pairs: list[tuple[str, str]],
                        vmax=1)
     color_bar = heat_map.collections[0].colorbar
     color_bar.set_ticks([0, 0.25, 0.5, 0.75, 1])
-    # color_bar.set_ticklabels(['0%', '25%', '50%', '75%', '100%'])
-    color_bar.set_ticklabels(['0.00', '0.25', '0.50', '0.75', '1.00'])
-    # plt.title(f'{title}\nAcurácia: {accuracy:.1%}')
+
+    if format_ == '.1%':
+        color_bar.set_ticklabels(['0%', '25%', '50%', '75%', '100%'])
+    else:
+        color_bar.set_ticklabels(['0.00', '0.25', '0.50', '0.75', '1.00'])
+
     plt.title(f'{title}')
     plt.xlabel('Previsto')
     plt.ylabel('Verdadeiro')
