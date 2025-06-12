@@ -1,10 +1,8 @@
-% TODO: Ajustar isso para a entrega final
-
 \chapter{Fundamentação Teórica}
 
-Neste capítulo serão apresentados os aspectos teóricos de lesões de pele, \acp{MLLM} e do \ac{LLaMA}-3.2. O
-funcionamento e desenvolvimento de \acp{MLLM} serão esclarecidos com a explicação dos principais componentes desses
-modelos.
+Neste capítulo, serão apresentados os aspectos teóricos de lesões de pele, \acp{MLLM}, variantes do modelo
+\ac{LLaMA}-3.2 e de técnicas de \textit{fine-tuning}. O funcionamento e desenvolvimento de \acp{MLLM} serão
+esclarecidos com a explicação dos principais componentes desses modelos.
 
 \section{Lesões de Pele}
 
@@ -33,7 +31,7 @@ imagens podem ser agrupadas em diferentes categorias. Alguns exemplos baseados e
 \textcite{fotos_dermatologia} são:
 
 \begin{itemize}
-    \item \textbf{Dermatoscopia}: Essas imagens são obtidas com um equipamento especializado, o dermatoscópio. Esse
+    \item \textbf{Dermatoscopia}: Estas imagens são obtidas com um equipamento especializado, o dermatoscópio. Esse
           método permite que um diagnóstico mais preciso seja feito, sendo melhor que o olho nu na detecção de
           melanomas \cite{dermatoscopy};
     \item \textbf{Foto de aproximação com régua}: Esse tipo de imagem é obtida com uma fotografia feita a 30
@@ -71,7 +69,7 @@ Um melhor prognóstico para esta enfermidade está diretamente relacionado à de
 adequado. Segundo \textcite{skin_cancer_survival}, a taxa de sobrevivência ao melanoma no Brasil é menor que a taxa
 global, sendo que há uma prevalência maior de casos avançados.
 
-\subsection{Detecção e Diagnóstico de Câncer de Pele} \label{sec:skin_cancer_detection}
+\subsection{Detecção e Diagnóstico de Câncer do Pele} \label{sec:skin_cancer_detection}
 
 O câncer de pele pode ser identificado e classificado com base nas características da lesão, incluindo o tamanho, a
 variação de cor, irregularidade do formato, evolução ao longo do tempo e a localização no corpo.
@@ -97,7 +95,6 @@ codificador de modalidade, projetor de entrada, \ac{LLM}, projetor de saída e o
 \acp{MLLM} que possuem apenas saída de texto, somente os três primeiros componentes estão presentes, essa estrutura é
 demonstrada na \autoref{fig:mllm_structure_encoder_only}.
 
-% TODO: Fazer uma figura melhor
 \begin{figure}[ht]
     \centering
     \caption{\small Estrutura de um \ac{MLLM} que realiza apenas a interpretação multimodal.}
@@ -240,10 +237,9 @@ posicionais com o método utilizado no transformador original.
     \fonte{\textcite{positional_embeddings}.}
 \end{figure}
 
-% TODO: Verificar porquê o RoPE não aparece na versão longa sem forçar
 Essa forma de codificação é conhecida como \ac{APE}, ela possui certas desvantagens, como a limitação no número de
 incorporações e a incapacidade de reconhecer distâncias relativas. Mas, existem outras formas de codificação que lidam
-com esses problemas, como \ac{RPE}, \acl{RoPE} e vieses posicionais relativos. \textcite{llm_survey_2024} traz
+com esses problemas, como \ac{RPE}, \acf{RoPE} e vieses posicionais relativos. \textcite{llm_survey_2024} traz
 definições sobre esses outros tipos:
 
 \begin{itemize}
@@ -495,7 +491,7 @@ por humanos, recebendo uma pontuação. Assim, é possível ajustar o modelo par
 melhores. Outro método comum é o \ac{RLAIF}, que integra um modelo já alinhado ao que está em treinamento, realizando
 os ajustes necessários.
 
-\subsubsection{Pré-treinamento}
+\subsubsection{Pré-treinamento de MLLMs}
 
 O pré-treinamento de um \ac{MLLM} normalmente evolve o travamento dos codificadores de modalidade e do \ac{LLM},
 fazendo com que somente o projetor seja treinado. Em alguns casos, o codificador de modalidade também é destravado,
@@ -518,11 +514,11 @@ textos em um formato de pergunta e resposta, em que uma pergunta é feita sobre 
 O \textit{fine-tuning} é uma etapa de treinamento que pode ser realizada para melhorar o desempenho do modelo com
 relação a dados específicos ou sobre um domínio de conhecimento. Técnicas de \textit{fine-tuning} eficientes, como as
 baseadas em \ac{PEFT}, oferecem uma forma de adaptação de modelos com um custo computacional elativamente menor. Dentre
-várias técnicas, uma das mais populares é o \ac{LoRA} \cite{llm_survey_2023}.
+várias técnicas, uma das mais populares é o treinamento com \ac{LoRA} \cite{llm_survey_2023}.
 
 \subsubsubsection{LoRA}
 
-Essa técnica, proposta por \textcite{hu2021lora}, consiste-se em explorar o \textit{rank} intrínseco, um conceito
+Esta técnica, proposta por \textcite{hu2021lora}, consiste-se em explorar o \textit{rank} intrínseco, um conceito
 baseado em dimensionalidade intrínseca, introduzindo matrizes treináveis menores de baixo \textit{rank} ao \ac{MLLM},
 deixando as matrizes originais intactas durante o treinamento. Assim que treinadas, essas matrizes são adicionadas às
 originais.
@@ -554,20 +550,18 @@ do \ac{LoRA} com a expressão \begin{math}h = W_0x + BAx\end{math}.
     \fonte{\textcite{hu2021lora}.}
 \end{figure}
 
-\subsubsubsection{QLoRA} % TODO: Explicar mais no futuro, talvez?
+\subsubsubsection{QLoRA}
 
-É comum utilizar quantização para acelerar o \textit{fine-tuning}, que se trata da redução da precisão numérica durante
-o treinamento. Uma técnica que utiliza este
-conceito é o \ac{QLoRA}, proposta por \textcite{qlora}. Nela, é usado o tipo \ac{NF4} no armazenamento das matrizes
-pré-treinadas, sendo que os valores em \ac{NF4} são
-convertidos para \ac{BF16} durante os cálculos. Além disso, também são usados otimizadores paginados e dupla
-quantização.
+É comum utilizar quantização para acelerar o \textit{fine-tuning}, onde se reduz precisão numérica durante o
+treinamento. Uma técnica que utiliza este conceito é o \ac{QLoRA}, proposta por \textcite{qlora}. Nela, é usado o tipo
+\ac{NF4} no armazenamento das matrizes pré-treinadas, sendo que os valores em \ac{NF4} são convertidos para \ac{BF16}
+durante os cálculos. Além disso, também são usados otimizadores paginados e dupla quantização.
 
 \section{LLaMA 3}
 
 A família de modelos \ac{LLaMA}-3 é composta por \acp{LLM} e \acp{MLLM} desenvolvidos pelos pesquisadores da
 \textit{Meta AI}. Em particular, este trabalho focará no modelo multimodal \ac{LLaMA}-3.2, que possui as variantes com
-11 e 90 bilhões de parâmetros disponíveis \cite{dubey2024llama}.
+11 (\ac{LLaMA}-3.2-11B) e 90 (\ac{LLaMA}-3.2-90B) bilhões de parâmetros disponíveis \cite{dubey2024llama}.
 
 O \ac{LLM} base do \ac{LLaMA}-3.2 utiliza um transformador decodificador que possui algumas diferenças em relação à
 arquitetura original de \textcite{transformer}, as maiores diferenças já existem desde os modelos \ac{LLaMA} e

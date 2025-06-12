@@ -1,22 +1,22 @@
 \chapter{Conclusão}
 
-Neste trabalho, foi realizado o \textit{fine-tuning} do \ac{MLLM} \ac{LLaMA}-3.2 com as técnicas de treinamento
+Neste trabalho, foi realizado o \textit{fine-tuning} do \ac{MLLM} \ac{LLaMA}-3.2-11B com as técnicas de treinamento
 \ac{QLoRA} e \ac{LoRA}. Os modelos provenientes do \textit{fine-tuning} nas duas etapas de desenvolvimento foram
 analisados e comparados com o modelo base e também entre si, oferecendo informações relevantes sobre o impacto dos
 diferentes métodos de treinamento.
 
-Os resultados apresentados constataram que o \textit{fine-tuning} do modelo \ac{LLaMA}-3.2 pode ser feite de forma
+Os resultados apresentados constataram que o \textit{fine-tuning} do modelo \ac{LLaMA}-3.2-11B pode ser feito de forma
 eficiente através do treinamento com \ac{QLoRA}. Os modelos treinados com este método obtiveram um desempenho
-semelhante ao dos modelos treinados com \ac{LoRA}.
+semelhante ao dos modelos treinados com \ac{LoRA} e requisitaram menos memória durante o treinamento.
 
-Os resultados obtidos na etapa inicial foram satisfatórios e demonstraram que através do \textit{fine-tuning} com
-\ac{QLoRA} utilizando 5000 pares de imagem e resposta de classificação é possível atingir uma acurácia na classificação
+Na etapa inicial, os resultados obtidos foram satisfatórios e demonstraram que através do \textit{fine-tuning} com
+\ac{QLoRA} com 5000 amostras do conjunto de dados é possível atingir uma acurácia na classificação
 de lesões de pele de 85,4\%. Porém, os resultados da etapa final foram poucos satisfatórios quanto ao critério de
 classificação de lesões, atingindo apenas 45,2\% de acurácia após o treinamento com \ac{QLoRA}. Embora o volume de
 dados utilizado nesta etapa tenha sido similar, com um total de 4736 pares de imagem e texto de resposta, o conteúdo em
-sí das imagens e do texto eram consideravelmente diferentes. As imagens de aproximação utilizadas possuíam uma
-complexidade visual muito maior, pois elas incluíam elementos extras além da lesão de pele, como o resto do ambiente ao
-redor do local da lesão. Além disso, os textos utilizados possuíam não só uma seção para a classificação da lesão, mas
+sí das imagens e do texto eram consideravelmente diferentes. As imagens de aproximação utilizadas possuem uma
+complexidade visual muito maior, pois elas incluem elementos extras além da lesão de pele, como o resto do ambiente ao
+redor do local da lesão. Além disso, os textos utilizados possuem não só uma seção para a classificação da lesão, mas
 também uma seção para a classificação de risco, conclusão sobre a lesão e conclusão geral.
 
 O volume de dados no conjunto de treinamento pode ter sido insuficiente para o \textit{fine-tuning}, impossibilitando
@@ -35,10 +35,10 @@ inconsistências e erros no conjunto de dados.
 
 Por fim, os resultados dos testes na segunda etapa sobre o conjunto de treinamento evidenciaram que o \ac{LLaMA}-3.2
 após o \textit{fine-tuning} não foi capaz de capturar o padrão de classificação de lesões de pele, sugerindo um
-\textit{underfitting} neste aspecto.
+\textit{underfitting}.
 
-Em geral, considera-se que seria necessária a adaptação e expansão do conjunto de dados para que o desenvolvimento de
-um modelo com um maior desempenho seja possível.
+Em geral, considera-se necessária a adaptação e expansão do conjunto de dados para que o desenvolvimento de um novo
+modelo com um maior desempenho seja possível.
 
 \section{Trabalhos Futuros}
 
@@ -51,7 +51,7 @@ Recomenda-se também a otimização aprofundada dos hiperparâmetros de treiname
 grade e ferramentas como W\&B Sweeps e Optuna \cite{wab_sweeps, optuna_2019}.
 
 A utilização de outros \acp{MLLM} também é recomendada, particularmente a do Gemma 3 de \textcite{team2025gemma}. Isso
-tornaria possível uma comparação mais avançada entre diferentes modelos.
+tornaria possível a realização de uma comparação mais avançada entre os diferentes modelos.
 
 Por fim, sugere-se a utilização de avaliações manuais sobre partes dos resultados dos testes. Atualmente, os resultados
 são analisados de forma automática, o que pode levar à desconsideração de aspectos importantes do texto gerado. Com a
