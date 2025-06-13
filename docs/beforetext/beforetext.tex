@@ -1,73 +1,84 @@
-% Capa
 \imprimircapa
 
-% Folha de rosto
 \imprimirfolhaderosto*
 
 \begin{fichacatalografica}
-	\includepdf{beforetext/Ficha_Catalografica.pdf}
+    \includepdf{beforetext/Ficha_Catalografica.pdf}
 \end{fichacatalografica}
 
-% Folha de aprovação
 \include{beforetext/approvation}
 
 \include{beforetext/thanks}
 
-% Resumo em português
 \setlength{\absparsep}{18pt}
 \begin{resumo}
-	\SingleSpacing
-	Lesões de pele podem ser um indicativo de diversas doenças, incluindo doenças graves como o câncer de pele. A detecção precoce dessas lesões é fundamental para o
-	tratamento e cura da doença. Porém, o diagnóstico pode ser feito somente por profissionais qualificados, como dermatologistas.
-	
-	Uma parte do atendimento de atenção primária no Brasil é feita por \ac{ACS}. Esses profissionais estão em contato direto com a população, porém, eles não são
-	qualificados para realizar a triagem de casos de lesões de pele. Considerando este cenário, uma ferramenta capaz de classificar lesões de pele e fornecer
-	pré-diagnósticos pode ser útil.
-	
-	\acp{MLLM} possuem as capacidades necessárias para serem utilizados no desenvolvimento de uma ferramenta como esta. Estes modelos podem identificar e classificar
-	lesões de pele com base em imagens e prover um pré-diagnóstico compreensível, indicando a gravidade do problema e a urgência da busca pelo atendimento médico. Além
-	disso, \acp{MLLM} podem ser adaptados para tarefas especializadas através de \textit{fine-tuning}.
-	
-	Neste trabalho, propõe-se a adaptação do \ac{MLLM} \ac{LLaMA} 3.2 com diferentes técnicas de \textit{fine-tuning} baseadas em \ac{PEFT}, como o \ac{QLoRA} e
-	\ac{LoRA}, comparando-as entre si, para classificar lesões de pele com uma acurácia aceitável.
+    \SingleSpacing
+    Lesões de pele podem ser um indicador de diversas doenças, incluindo as graves, como o câncer de pele. A detecção
+    precoce dessas lesões é fundamental para o tratamento e a cura da doença. No entanto, o diagnóstico preciso só pode
+    ser feito por profissionais qualificados, como dermatologistas.
 
-	\textbf{Palavras-chave}: Lesões de pele. Câncer de pele. MLLM. LLaMA. PEFT. Fine tuning. QLoRA. LoRA.
+    Uma parte do atendimento de atenção primária no Brasil é feita por \ac{ACS}. Estes profissionais estão em contato
+    direto com a população, porém, não são qualificados para realizar a triagem de casos de lesões de pele.
+    Considerando este cenário, uma ferramenta capaz de classificar lesões de pele e também fornecer pré-diagnósticos e
+    recomendações seria de grande utilidade.
+
+    \acp{MLLM} possuem as capacidades necessárias para o desenvolvimento de uma ferramenta como esta, pois podem
+    classificar imagens e gerar descrições textuais com base no seu conteúdo. Além disso, estes modelos podem ser
+    adaptados para tarefas específicas através de \textit{fine-tuning}.
+
+    Com o objetivo de avaliar o uso de um \ac{MLLM} para a classificação de lesões de pele e a geração de laudos, foi
+    realizado neste trabalho o \textit{fine-tuning} do \ac{LLaMA} 3.2 11B com as técnicas \ac{QLoRA} e \ac{LoRA}, ambas
+    baseadas em \ac{PEFT}. O desenvolvimento foi realizado em duas etapas. Na primeira, o conjunto de imagens de
+    dermatoscopia \ac{HAM10000} foi utilizado no \textit{fine-tuning} do modelo para apenas classificar lesões de pele.
+    Nesta fase, o melhor modelo foi treinado com \ac{QLoRA} e obteve uma acurácia de 87,4\%. Na etapa final, um
+    conjunto de imagens de aproximação, proveniente do \ac{STT/SC}, foi utilizado no \textit{fine-tuning} para a
+    classificação de lesões e geração de laudos. O modelo final treinado com \ac{QLoRA} e apresentou uma acurácia de
+    45,2\%, enquanto o modelo com \ac{LoRA} obteve 44,5\%. O baixo desempenho dos modelos finais na classificação pode
+    ser explicado por inconsistências no conjunto de dados.
+
+    \textbf{Palavras-chave}: Lesões de pele. Câncer de pele. MLLM. LLaMA. PEFT. Fine tuning. QLoRA. LoRA.
 \end{resumo}
 
-% Resumo em inglês
 \begin{resumo}[Abstract]
-	\SingleSpacing
-	\begin{otherlanguage*}{english}
-		Skin lesions can indicate various diseases, including serious diseases such as skin cancer. Early detection of these lesions is fundamental for treating and
-		curing the disease. However, the diagnosis can only be made by qualified professionals, such as dermatologists.
+    \SingleSpacing
+    \begin{otherlanguage*}{english}
+        Skin lesions can be an indicator of several diseases, including serious ones like skin cancer. The early
+        detection of these lesions is fundamental for the treatment and cure of the disease. However, an accurate
+        diagnosis can only be made by qualified professionals, such as dermatologists.
 
-		Some primary care in Brazil is provided by \acl{ACS}, or in English, community health workers. These professionals are in direct contact with the population, but they
-		are not qualified to triage cases of skin lesions. Considering this scenario, a tool capable of classifying skin lesions and providing pre-diagnosis could be
-		useful.
+        Part of the primary care service in Brazil is carried out by \acf{ACS}. These professionals are in direct
+        contact with the population, however, they are not qualified to perform the screening of skin lesion cases.
+        Considering this scenario, a tool capable of classifying skin lesions and also providing pre-diagnoses and
+        recommendations would be of great use.
 
-		\aclp{MLLM} have the necessary capabilities to be used in the development of such a tool. These models can identify and classify skin lesions based on images and
-		provide an understandable pre-diagnosis that indicates the severity of the problem and the urgency of seeking medical attention. In addition, \acp{MLLM} can be
-		fine-tuned for specialized tasks.
+        \acfp{MLLM} have the necessary capabilities for the development of a tool like this, as they can classify
+        images and generate textual descriptions based on their content. Furthermore, these models can be adapted for
+        specific tasks through fine-tuning.
 
-		This paper proposes to adapt \ac{MLLM} \acl{LLaMA} 3.2 with different fine-tuning techniques based on \acl{PEFT}, such as \acl{QLoRA} and \acl{LoRA}, and compare
-		them to classify skin lesions with acceptable accuracy.
+        With the objective of evaluating the use of an \ac{MLLM} for the classification of skin lesions and the
+        generation of reports, this work carried out the fine-tuning of \acf{LLaMA} 3.2 11B with the \acf{QLoRA} and
+        \acf{LoRA} techniques, both based on \acf{PEFT}. The development was carried out in two stages. In the first,
+        the \acf{HAM10000} dermatoscopy image dataset was used in the fine-tuning of the model to only classify skin
+        lesions. In this phase, the best model was trained with \ac{QLoRA} and obtained an accuracy of 87.4\%. In the
+        final stage, a set of close-up images, from \acf{STT/SC}, was used in the fine-tuning for the classification of
+        lesions and generation of reports. The final model trained with QLoRA presented an accuracy of 45.2\%, while
+        the model with \ac{LoRA} obtained 44.5\%. The low performance of the final models in the classification can be
+        explained by inconsistencies in the dataset.
 
-		\textbf{Keywords}: Skin lesions. Skin cancer. MLLM. LLaMA. PEFT. Fine tuning. QLoRA. LoRA.
-	\end{otherlanguage*}
+        \textbf{Keywords}: Skin lesions. Skin cancer. MLLM. LLaMA. PEFT. Fine-tuning. QLoRA. LoRA.
+    \end{otherlanguage*}
 \end{resumo}
 
 {
 \hypersetup{hidelinks}
 
-% Lista de imagens
 \pdfbookmark[0]{\listfigurename}{lof}
 \listoffigures
 
-% Lista de siglas
 \imprimirlistadesiglas
 
-% Sumário
-\pdfbookmark[0]{\contentsname}{toc}
+\pdfbookmark[0] {
+\contentsname}{toc}
 \tableofcontents*
 \cleardoublepage
 }

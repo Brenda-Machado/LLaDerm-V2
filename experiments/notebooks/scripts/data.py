@@ -589,7 +589,7 @@ def plot_skin_lesion_distribution(simple_dataset_analysis: SimpleDatasetAnalysis
                 va='center', fontsize=9)
 
     ax.set_xlabel('Quantidade')
-    ax.set_title('Distribuição das Lesões de Pele')
+    ax.set_title('Distribuição das Classes de Lesões de Pele')
 
     plt.tight_layout()
 
@@ -628,7 +628,7 @@ def plot_risk_distribution(simple_dataset_analysis: SimpleDatasetAnalysis,
                 va='center', fontsize=9)
 
     ax.set_xlabel('Quantidade')
-    ax.set_title('Distribuição das classificações de risco')
+    ax.set_title('Distribuição das Classificações de Risco')
 
     plt.tight_layout()
 

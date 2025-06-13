@@ -2,11 +2,9 @@
 Análise de resultados.
 '''
 
-# TODO: Colocar tudo nos módulos corretos
-
 from unicodedata import normalize, combining
 
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, classification_report
 from seaborn import heatmap
 from pydantic import BaseModel
 from tensorboard.backend.event_processing import event_accumulator
@@ -156,8 +154,14 @@ def structure_report_classification_answer(answer: str) -> ReportClassificationA
 
     answer_parts = answer.splitlines()
 
-    skin_lesion = answer_parts[0].split(':', 1)[1].strip().strip('.')
-    risk = answer_parts[1].split(':', 1)[1].strip().strip('.')
+    try:
+        skin_lesion = answer_parts[0].split(':', 1)[1].strip().strip('.')
+        risk = answer_parts[1].split(':', 1)[1].strip().strip('.')
+    except IndexError:
+        return InvalidAnswer(
+            valid=False,
+            answer=answer
+        )
 
     sanitized_skin_lesion = sanitize_domain_class(skin_lesion)
     sanitized_risk = sanitize_domain_class(risk)
@@ -343,6 +347,17 @@ def split_pairs(pairs: list[tuple[str, str]],
     return most_frequent_label_pairs, least_frequent_label_pairs, most_frequent_classes, least_frequent_classes
 
 
+def calculate_classification_report(pairs: list[tuple[str, str]]) -> str:
+    '''
+    Calcula e exibe o relatório de classificação.
+    '''
+
+    y_true = [pair[0] for pair in pairs]
+    x_predicted = [pair[1] for pair in pairs]
+
+    return str(classification_report(y_true, x_predicted, zero_division=0, digits=2))
+
+
 def calculate_accuracy(pairs: list[tuple[str, str]]) -> float:
     '''
     Calcula a acurácia.
@@ -392,7 +407,8 @@ def create_confusion_matrix(pairs: list[tuple[str, str]],
                             title: str,
                             save_path: str,
                             annotate: bool = True,
-                            format_: str = '.1%') -> None:
+                            format_: str = '.1%',
+                            size: tuple[int, int] = (12, 10)) -> None:
     '''
     Calcula a acurácia e cria uma visualização da matriz de confusão normalizada.
     '''
@@ -400,11 +416,9 @@ def create_confusion_matrix(pairs: list[tuple[str, str]],
     y_true = [pair[0] for pair in pairs]
     x_predicted = [pair[1] for pair in pairs]
 
-    accuracy = accuracy_score(y_true, x_predicted)
-
     cm = confusion_matrix(y_true, x_predicted, labels=labels, normalize='true')
 
-    plt.figure(figsize=(12, 10))
+    plt.figure(figsize=size)
     heat_map = heatmap(cm,
                        annot=annotate,
                        fmt=format_,
@@ -415,8 +429,13 @@ def create_confusion_matrix(pairs: list[tuple[str, str]],
                        vmax=1)
     color_bar = heat_map.collections[0].colorbar
     color_bar.set_ticks([0, 0.25, 0.5, 0.75, 1])
-    color_bar.set_ticklabels(['0%', '25%', '50%', '75%', '100%'])
-    plt.title(f'{title}\nAcurácia: {accuracy:.1%}')
+
+    if format_ == '.1%':
+        color_bar.set_ticklabels(['0%', '25%', '50%', '75%', '100%'])
+    else:
+        color_bar.set_ticklabels(['0.00', '0.25', '0.50', '0.75', '1.00'])
+
+    plt.title(f'{title}')
     plt.xlabel('Previsto')
     plt.ylabel('Verdadeiro')
     plt.xticks(rotation=45, ha='right')
