@@ -2,8 +2,6 @@
 Análise de resultados.
 '''
 
-# TODO: Colocar tudo nos módulos corretos
-
 from unicodedata import normalize, combining
 
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, classification_report
