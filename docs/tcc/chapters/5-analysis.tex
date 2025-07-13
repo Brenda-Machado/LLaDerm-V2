@@ -26,46 +26,19 @@ classificação das lesões.
     \centering
     \begin{tabular}{l|l|c|c}
         \hline
-        Tipo de imagem                  & Método de \textit{fine-tuning} & Volume de treinamento &
-        Acurácia (\%)
-        \\
-        \hline
-        \multirow{10}{*}{Dermatoscopia} & Nenhum (Quantizado)            & -                     & 11,8
-        \\
-                                        & Nenhum                         & -                     & 14,0
-        \\
-        \cline{2--2}
-                                        & \multirow{5}{*}{\ac{QLoRA}}    & 450                   & 65,5
-        \\
-                                        &                                & 900                   & 65,2
-        \\
-                                        &                                & 1800                  & 71,1
-        \\
-                                        &                                & 5000                  & 85,4
-        \\
-                                        &                                & 9500                  &
-        \textbf{87,4}
-        \\
-        \cline{2--2}
-                                        & \multirow{3}{*}{\ac{LoRA}}     & 450                   & 49,5
-        \\
-                                        &                                & 900                   & 42,0
-        \\
-                                        &                                & 5000                  & 86,2
-        \\
-        \hline
-        \multirow{4}{*}{Aproximação}    & Nenhum (Quantizado)            & -                     & 14,8
-        \\
-                                        & Nenhum                         & -                     & 17,0
-        \\
-        \cline{2--2}
-                                        & \ac{QLoRA}                     & 4736                  &
-        \textbf{45,2}
-        \\
-        \cline{2--2}
-                                        & \ac{LoRA}                      & 4736                  & 44,5
-        \\
-        \hline
+        Tipo de imagem                  & Método de \textit{fine-tuning} & Volume de treinamento & Acurácia (\%) \\ \hline
+        \multirow{10}{*}{Dermatoscopia} & Nenhum (Quantizado)            & -                     & 11,8 \\
+                                        & Nenhum                         & -                     & 14,0 \\ \cline{2--2}
+                                        & \multirow{3}{*}{\ac{QLoRA}}    & 450                   & 65,5 \\
+                                        &                                & 900                   & 65,2 \\
+                                        &                                & 5000                  & 85,4 \\ \cline{2--2}
+                                        & \multirow{3}{*}{\ac{LoRA}}     & 450                   & 49,5 \\
+                                        &                                & 900                   & 42,0 \\
+                                        &                                & 5000                  & \textbf{86,2} \\ \hline
+        \multirow{4}{*}{Aproximação}    & Nenhum (Quantizado)            & -                     & 14,8 \\
+                                        & Nenhum                         & -                     & 17,0 \\ \cline{2--2}
+                                        & \ac{QLoRA}                     & 4736                  & \textbf{45,2} \\ \cline{2--2}
+                                        & \ac{LoRA}                      & 4736                  & 44,5 \\ \hline
     \end{tabular}
     \label{tab:overall_comparison_skin_lesions}
     \fonte{Autoria própria}
@@ -208,7 +181,7 @@ Por fim, comparando as métricas de treinamento apresentadas na \autoref{fig:tra
 \autoref{tab:final_training_metrics}, observa-se que ambos os métodos de treinamento tomam uma quantidade similar de
 tempo para serem concluídos. O tempo de treinamento também tende a escalar na mesma taxa para ambos os métodos, mesmo
 com diferentes volumes de dados. Ademais, o método \ac{LoRA} tente a utilizar uma quantidade maior de memória, com um
-uso médio de 93,91\% a mais de memória em relação ao \ac{QLoRA} na etapa inicial. Na etapa final, o \ac{LoRA} utilizou
+uso médio de 84,19\% a mais de memória em relação ao \ac{QLoRA} na etapa inicial. Na etapa final, o \ac{LoRA} utilizou
 25,94\% a mais de memória. A disparidade entre essas diferenças para as duas etapas pode ser explicada pelas alterações
 nos hiperparâmetros que afetam o uso da memória, como tamanho do lote por dispositivo e o passo de acumulação de
 gradiente. Além disso, é possível que as características dos conjunto de dados tenham influenciado nesta diferença.

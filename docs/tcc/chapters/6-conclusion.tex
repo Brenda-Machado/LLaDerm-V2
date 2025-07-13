@@ -11,13 +11,14 @@ semelhante ao dos modelos treinados com \ac{LoRA} e requisitaram menos memória 
 
 Na etapa inicial, os resultados obtidos foram satisfatórios e demonstraram que através do \textit{fine-tuning} com
 \ac{QLoRA} com 5000 amostras do conjunto de dados é possível atingir uma acurácia na classificação
-de lesões de pele de 85,4\%. Porém, os resultados da etapa final foram poucos satisfatórios quanto ao critério de
-classificação de lesões, atingindo apenas 45,2\% de acurácia após o treinamento com \ac{QLoRA}. Embora o volume de
-dados utilizado nesta etapa tenha sido similar, com um total de 4736 pares de imagem e texto de resposta, o conteúdo em
-sí das imagens e do texto eram consideravelmente diferentes. As imagens de aproximação utilizadas possuem uma
-complexidade visual muito maior, pois elas incluem elementos extras além da lesão de pele, como o resto do ambiente ao
-redor do local da lesão. Além disso, os textos utilizados possuem não só uma seção para a classificação da lesão, mas
-também uma seção para a classificação de risco, conclusão sobre a lesão e conclusão geral.
+de lesões de pele de 85,4\%, o que é próximo da acurácia de 86,2\% obtida com o \ac{LoRA} para o mesmo volume de dados.
+Porém, os resultados da etapa final foram poucos satisfatórios quanto ao critério de classificação de lesões, atingindo
+apenas 45,2\% de acurácia após o treinamento com \ac{QLoRA}. Embora o volume de dados utilizado nesta etapa tenha sido
+similar, com um total de 4736 pares de imagem e texto de resposta, o conteúdo em si das imagens e do texto eram
+consideravelmente diferentes. As imagens de aproximação utilizadas possuem uma complexidade visual muito maior, pois
+elas incluem elementos extras além da lesão de pele, como o resto do ambiente ao redor do local da lesão. Além disso,
+os textos utilizados possuem não só uma seção para a classificação da lesão, mas também uma seção para a classificação
+de risco, conclusão sobre a lesão e conclusão geral.
 
 O volume de dados no conjunto de treinamento pode ter sido insuficiente para o \textit{fine-tuning}, impossibilitando
 os modelos finais de realizarem uma tarefa complexa como a geração de laudos com classificações e recomendações. Além

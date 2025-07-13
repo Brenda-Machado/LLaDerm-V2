@@ -6,9 +6,9 @@ treinamento e de execução de testes, incluindo também a análise dos resultad
 \section{Tecnologias Utilizadas}
 
 Para ambas as etapas, as mesmas tecnologias foram utilizadas. O processamento de dados e \textit{fine-tuning} foram
-feitos com \textit{scripts} em Python e \textit{Jupyter notebooks}. O gerenciador Poetry foi utilizado para gerenciar
-as dependências e o \textit{framework} Unsloth foi utilizado no \textit{fine-tuning}. Por fim, os treinamentos foram
-realizados com uma placa NVIDIA H100 de 80 GB que faz parte de uma plataforma NVIDIA DGX H100.
+feitos com \textit{scripts} em Python 3.10 e \textit{Jupyter notebooks}. O gerenciador Poetry foi utilizado para
+gerenciar as dependências e o \textit{framework} Unsloth foi utilizado no \textit{fine-tuning}. Por fim, os
+treinamentos foram realizados com uma placa NVIDIA H100 de 80 GB que faz parte de uma plataforma NVIDIA DGX H100.
 
 \section{Etapa Inicial de Desenvolvimento}
 
@@ -23,12 +23,16 @@ Para os experimentos iniciais, utilizou-se o conjunto de dados \ac{HAM10000} de 
 possui 13354 imagens de dermatoscopia com resolução de \begin{math}600 \times 450\end{math} pixels. São associadas às
 imagens informações como a doença causadora da lesão de pele, a idade do paciente, sexo e localização da lesão.
 
+Optou-se pela não inclusão de outros conjuntos de dados com imagens de dermatoscopia no treinamento, como os do
+\ac{ISIC}, devido à complexidade na adaptação do formato. O código desenvolvido foi idealizado para o conjunto de dados
+final, proveniente do \ac{STT/SC}, tornando necessário o uso de um conjunto com formato próximo para o treinamento. Por
+fim, como as comparações foram realizadas com um volume relativamente pequeno de dados, o \ac{HAM10000} foi suficiente,
+eliminando a necessidade de outros conjuntos.
+
 O conjunto de dados é separado nas seções de treinamento, teste e validação, que possuem 9577, 1285 e 2492 imagens,
 respectivamente. A \autoref{tab:ham10000_proportion} apresenta as proporções entre as categorias de lesões de pele. Os
 dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{HAM10000} fornecida por
 \textcite{skin_cancer_dataset}. A proporção das lesões é conservada entre as seções do conjunto de dados.
-
-\clearpage
 
 \begin{table}[ht]
     \caption{\small Proporção entre as diferentes categorias de lesões de pele no \ac{HAM10000}.}
@@ -48,6 +52,7 @@ dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{H
     \fonte{\textcite{tschandl2018ham10000}}
 \end{table}
 
+% TODO: Ajustar a parte do inglês
 \subsubsection{Estruturação dos Dados no Modelo Conversacional}
 
 Para treinar o modelo, foram gerados diálogos constituídos de um pedido para a classificação da lesão com base em uma
@@ -55,8 +60,8 @@ imagem e de uma resposta com a classe da lesão. Os pares de imagens e lesões d
 amostras do conjunto de dados de treinamento. A amostragem foi feita com base nas classes das lesões de pele, assim,
 cada amostra possui uma representação proporcional das lesões em relação ao conjunto de dados completo.
 
-Durante a execução desta etapa, o modelo utilizado ainda não suportava a utilização de textos em português para tarefas
-multimodais, sendo assim, os diálogos foram produzidos em inglês. O padrão de diálogo pode ser conferido abaixo:
+O modelo utilizado não possui suporte nativo à utilização de textos em português para tarefas multimodais, sendo assim,
+os diálogos foram produzidos em inglês. O padrão de diálogo pode ser conferido abaixo:
 
 \begin{dialogue}
     \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem>}} \\
@@ -68,7 +73,7 @@ multimodais, sendo assim, os diálogos foram produzidos em inglês. O padrão de
 O \textit{Fine-tuning} se consistiu no treinamento do modelo \ac{LLaMA}-3.2-11B, que possui 11 bilhões de parâmetros,
 com as técnicas \ac{QLoRA} e \ac{LoRA}.
 
-\subsubsection{\textit{Fine-tuning} com 450, 900 e 1800 Amostras}
+\subsubsection{\textit{Fine-tuning} com 450 e 900 Amostras}
 
 A primeira etapa nos experimentos foi a realização o \textit{fine-tuning} por meio do treinamento com \ac{QLoRA} com
 450 amostras de treinamento e 50 de validação. Os hiperparâmetros\footnote{parâmetros de treinamento} utilizados no
@@ -80,7 +85,7 @@ primeira linha da \autoref{tab:500_training} inclui os dados sobre o treinamento
 apresenta o \textit{loss} de treinamento e validação ao longo dos passos.
 
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \ac{QLoRA} com 450, 900 e 1800 amostras. A primeira seção se refere às
+    \caption{\small Hiperparâmetros para o \ac{QLoRA} com 450 e 900 amostras. A primeira seção se refere às
     configurações
     específicas de \ac{PEFT}, enquanto a
     segunda se refere ao treinamento em geral.}
@@ -180,52 +185,18 @@ conferido na \autoref{fig:loss_qlora_1000} e na \autoref{fig:loss_lora_1000}.
     \fonte{Autoria própria.}
 \end{figure}
 
-Por último, foi realizado um \textit{fine-tuning} com \ac{QLoRA} com 1800 amostras e os mesmos hiperparâmetros
-utilizados anteriormente. As informações sobre o treinamento podem ser vistas na \autoref{tab:qlora_2000_training} e na
-\autoref{fig:loss_qlora_2000}.
+\subsubsection{\textit{Fine-tuning} com 5000 Amostras}
 
-\clearpage
-
-\begin{table}[ht]
-    \caption{\small Dados sobre o treinamento com \ac{QLoRA} com 1800 amostras.}
-    \centering
-    \begin{tabular}{l|c}
-        \hline
-                             & Valor     \\ \hline
-        Parâmetros treinados & 134348800 \\
-        Duração (min)        & 90,77     \\
-        Passos               & 450       \\
-        Memória (GB)         & 18,74     \\ \hline
-    \end{tabular}
-    \label{tab:qlora_2000_training}
-    \fonte{Autoria própria}
-\end{table}
-
-\begin{figure}[ht]
-    \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{QLoRA} com 1800 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_2000.png}
-    \label{fig:loss_qlora_2000}
-    \fonte{Autoria própria.}
-\end{figure}
-
-\subsubsection{\textit{Fine-tuning} com 5000 e 9500 Amostras}
-
-Os hiperparâmetros foram modificados para os treinamentos com 5000 e 9500 amostras, assim, foi possível avaliar o
+Os hiperparâmetros foram modificados para os treinamentos com 5000 amostras, assim, foi possível avaliar o
 impacto de diferentes configurações de treinamento. As configurações na \autoref{tab:qlora_5000_config} se referem
-tanto ao treinamento com \ac{QLoRA} quanto ao com \ac{LoRA}. Para o treinamento com 9500 amostras, foi utilizado
-somente o \ac{QLoRA}. Os dados dos treinamentos podem ser conferidos na \autoref{tab:5000_training} e
-\autoref{tab:qlora_9500_training}, enquanto o \textit{loss} pode ser conferido na \autoref{fig:loss_qlora_5000},
-\autoref{fig:loss_lora_5000} e \autoref{fig:loss_qlora_9500}. Observa-se também que os hiperparâmetros utilizados
-levaram a uma maior instabilidade no \textit{loss} ao longo dos passos.
-
-\clearpage
+tanto ao treinamento com \ac{QLoRA} quanto ao com \ac{LoRA}. Os dados dos treinamentos podem ser conferidos na
+\autoref{tab:5000_training}, enquanto o \textit{loss} pode ser conferido na \autoref{fig:loss_qlora_5000} e
+\autoref{fig:loss_lora_5000}. Observa-se também que os hiperparâmetros utilizados levaram a uma maior instabilidade no
+\textit{loss} ao longo dos passos.
 
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \textit{fine-tuning} com 5000 e 9500 amostras. A primeira seção se refere às
-    configurações
-    específicas de \ac{PEFT}, enquanto
-    a segunda se refere ao treinamento em geral.}
+    \caption{\small Hiperparâmetros para o \textit{fine-tuning} com 5000 amostras. A primeira seção se refere às
+    configurações específicas de \ac{PEFT}, enquanto a segunda se refere ao treinamento em geral.}
     \centering
     \begin{tabular}{l|c}
         \hline
@@ -263,23 +234,6 @@ levaram a uma maior instabilidade no \textit{loss} ao longo dos passos.
     \fonte{Autoria própria}
 \end{table}
 
-\begin{table}[ht]
-    \caption{\small Dados sobre o treinamento com \ac{QLoRA} com 9500 amostras.}
-    \centering
-    \begin{tabular}{l|c}
-        \hline
-                                    & Valor     \\ \hline
-        Parâmetros treináveis       & 268697600 \\
-        Tempo de treinamento (min)  & 177,44    \\
-        Passos                      & 3564      \\
-        Memória máxima alocada (GB) & 18,971    \\ \hline
-    \end{tabular}
-    \label{tab:qlora_9500_training}
-    \fonte{Autoria própria}
-\end{table}
-
-\clearpage
-
 \begin{figure}[ht]
     \centering
     \caption{\small \textit{Loss} de treinamento e validação para o \ac{QLoRA} com 5000 amostras.}
@@ -287,22 +241,13 @@ levaram a uma maior instabilidade no \textit{loss} ao longo dos passos.
     \label{fig:loss_qlora_5000}
     \fonte{Autoria própria.}
 \end{figure}
+\clearpage
 
 \begin{figure}[ht]
     \centering
     \caption{\small \textit{Loss} de treinamento e validação para o \ac{LoRA} com 5000 amostras.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_5000.png}
     \label{fig:loss_lora_5000}
-    \fonte{Autoria própria.}
-\end{figure}
-
-\clearpage
-
-\begin{figure}[ht]
-    \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{QLoRA} com 9500 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_9500.png}
-    \label{fig:loss_qlora_9500}
     \fonte{Autoria própria.}
 \end{figure}
 
@@ -408,7 +353,7 @@ Foram registradas 3 respostas incertas para o modelo quantizado e apenas uma par
 \begin{figure}[ht]
     \centering
     \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B não quantizado.}
-
+    
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct.png}
     \label{fig:confusion_matrix_llama}
     \fonte{Autoria própria.}
@@ -430,15 +375,15 @@ pelo modelo treinado com \ac{QLoRA} com 450 amostras:
     \speak{Modelo} \textit{The skin lesion in the image is benign keratosis-like lesions.}
 \end{dialogue}
 
-Os modelos trainados com \ac{QLoRA} com 450, 5000 e 9500 amostras, e com \ac{LoRA} com 5000 amostras apresentaram um
+Os modelos trainados com \ac{QLoRA} com 450 e 5000 amostras, e com \ac{LoRA} com 5000 amostras apresentaram um
 problema em que as respostas não obedecem ao formato especificado na pergunta objetiva, respondendo com o texto
 completo.
 
 A acurácia nas respostas às perguntas objetivas aumentou consideravelmente com o \textit{fine-tuning} com \ac{QLoRA},
-chegando a atingir 65,5\%. Porém, o modelo gerado com esse treinamento tende a classificar a maioria das lesões como
-nevo melanocítico, o que indica que a acurácia maior pode ser simplesmente devido a uma quantidade maior de nevos
-melanocíticos nos dados de teste. Para o modelo treinado com \ac{LoRA}, o desempenho foi menor, atingindo apenas 49,5\%
-de acurácia.
+chegando a atingir 65,5\% com 450 amostras. Porém, o modelo gerado com esse treinamento tende a classificar a maioria
+das lesões como nevo melanocítico, o que indica que a acurácia maior pode ser simplesmente devido a uma quantidade
+maior de nevos melanocíticos nos dados de teste. Para o modelo treinado com \ac{LoRA}, o desempenho foi menor,
+atingindo apenas 49,5\% de acurácia para a mesma quantidade de amostras.
 
 Em geral, como pode ser visto na \autoref{fig:confusion_matrix_qlora_450} e \autoref{fig:confusion_matrix_lora_450}, as
 duas versões foram insatisfatórias, o que se deve a um treinamento com um conjunto pequeno de dados e hiperparâmetros
@@ -487,26 +432,12 @@ padrão melhor de classificação, reconhecendo melhor as lesões de nevos melan
     \fonte{Autoria própria.}
 \end{figure}
 
-O modelo treinado com \ac{QLoRA} e 1800 amostras teve um ganho de acurácia, atingindo 71,1\% e apresentando um padrão
-de reconhecimento melhor do que os modelos anteriores. A matriz de confusão pode ser vista na
-\autoref{fig:confusion_matrix_qlora_1800}.
-
-\clearpage
-
-\begin{figure}[ht]
-    \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA} e 1800 amostras.}
-    \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_qlora_1800.png}
-    \label{fig:confusion_matrix_qlora_1800}
-    \fonte{Autoria própria.}
-\end{figure}
-
 Com 5000 amostras, ambos os modelos treinados com \ac{QLoRA} e \ac{LoRA} apresentaram resultados melhores, com 85,4\% e
 86,2\% de acurácia, respectivamente. Deve-se observar que as configurações de treinamento foram modificadas, sendo que
 os dois métodos utilizaram hiperparâmetros similares. O \textit{fine-tuning} com \ac{LoRA} se mostrou levemente melhor
 dessa vez, demonstrando que o baixo desempenho do \ac{LoRA} nos outros treinamentos foi por conta de uma escolha não
 ideal de hiperparâmetros. A \autoref{fig:confusion_matrix_qlora_5000} e a \autoref{fig:confusion_matrix_lora_5000}
-apresentam estes resultados.
+apresentam estes resultados. A \autoref{tab:training_accuracies} apresenta as acurácias de forma resumida.
 
 \clearpage
 
@@ -528,32 +459,15 @@ apresentam estes resultados.
     \fonte{Autoria própria.}
 \end{figure}
 
-Por último, o modelo treinado com \ac{QLoRA} e 9500 amostras apresentou os melhores resultados, com uma acurácia de
-87,4\%. A matriz de confusão pode ser vista na \autoref{fig:confusion_matrix_qlora_9500}.
-
-A \autoref{tab:training_accuracies} apresenta as acurácias de forma resumida.
-
-\clearpage
-
-\begin{figure}[ht]
-    \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA} e 9500 amostras.}
-    \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_qlora_9500.png}
-    \label{fig:confusion_matrix_qlora_9500}
-    \fonte{Autoria própria.}
-\end{figure}
-
 \begin{table}[ht]
     \caption{\small Acurácia de cada modelo treinado.}
     \centering
     \begin{tabular}{l|c|c}
         \hline
         Método de treinamento       & Quantidade de amostras & Acurácia (\%) \\ \hline
-        \multirow{5}{*}{\ac{QLoRA}} & 450                    & 65,5          \\
+        \multirow{3}{*}{\ac{QLoRA}} & 450                    & 65,5          \\
                                     & 900                    & 65,2          \\
-                                    & 1800                   & 71,1          \\
-                                    & 5000                   & 85,4          \\
-                                    & 9500                   & 87,4          \\ \hline
+                                    & 5000                   & 85,4          \\ \hline
         \multirow{3}{*}{\ac{LoRA}}  & 450                    & 49,5          \\
                                     & 900                    & 42,0          \\
                                     & 5000                   & 86,2          \\ \hline
@@ -737,11 +651,11 @@ conferida na \autoref{fig:risk_classes}, com a legenda na \autoref{tab:risk_clas
 \end{table}
 
 Por fim, o conjunto de dados foi seccionado entre um conjunto de treinamento com 80\% dos dados e um de testes com
-20\%. A divisão foi feita de forma estratificada com o método \textit{k-fold} com o agrupamento baseado nos \acp{ID}
-dos exames. Este método de divisão garante que os pares de imagens e laudos de um mesmo exame fiquem no mesmo
-subconjunto de dados, evitando o vazamento de dados, onde o modelo é treinado com pares extremamente similares aos
-do conjunto de teste \cite{ghani2013proceedings}. No total, 4736 pares foram destinados ao conjunto de dados de
-treinamento, enquanto 1167 pares foram para o conjunto de testes.
+20\%. A divisão foi feita de forma estratificada com o método \textit{k-fold} (\begin{math}k = 5\end{math}) com o
+agrupamento baseado nos \acp{ID} dos exames. Este método de divisão garante que os pares de imagens e laudos de um
+mesmo exame fiquem no mesmo subconjunto de dados, evitando o vazamento de dados, onde o modelo é treinado com pares
+extremamente similares aos do conjunto de teste \cite{ghani2013proceedings}. No total, 4736 pares foram destinados ao
+conjunto de dados de treinamento, enquanto 1167 pares foram para o conjunto de testes.
 
 A criação de um terceiro conjunto de validação, como o utilizado na etapa inicial de desenvolvimento, foi considerada
 desnecessária. A etapa final realiza apenas uma iteração de treinamentos com hiperparâmetros pré-definidos, evitando
@@ -761,8 +675,8 @@ a necessidade de validações e ajustes durante o desenvolvimento.
 
 \subsubsection{Estruturação dos Dados no Modelo Conversacional} \label{sec:dialogue}
 
-Para a etapa final do desenvolvimento, o diálogo foi implementado em português. O padrão de pergunta e resposta pode
-ser conferido abaixo:
+Para a etapa final do desenvolvimento, o diálogo foi implementado em português, garantindo a consistência com a língua
+dos textos no conjunto de dados. O padrão de pergunta e resposta pode ser conferido abaixo:
 
 \begin{dialogue}
     \speak{Usuário} Classifique a lesão de pele na imagem, informando a classificação da lesão e classificação de
@@ -1664,7 +1578,7 @@ desempenho levemente maior na classificação de categorias de risco, porém, as
     \caption{\small Matriz de confusão da classificação de risco sobre o conjunto de treinamento para o
     \ac{LLaMA}-3.2-11B treinado com \ac{LoRA}. A classe ``I'' denota as respostas inválidas. A legenda das
     classificações está na \autoref{tab:risk_classes_legend}.}
-
+    
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_lora_final_risk_training.png}
     \label{fig:confusion_matrix_lladerm_lora_final_risk_training}
     \fonte{Autoria própria.}

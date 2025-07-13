@@ -30,7 +30,7 @@
     realizado neste trabalho o \textit{fine-tuning} do \ac{LLaMA} 3.2 11B com as técnicas \ac{QLoRA} e \ac{LoRA}, ambas
     baseadas em \ac{PEFT}. O desenvolvimento foi realizado em duas etapas. Na primeira, o conjunto de imagens de
     dermatoscopia \ac{HAM10000} foi utilizado no \textit{fine-tuning} do modelo para apenas classificar lesões de pele.
-    Nesta fase, o melhor modelo foi treinado com \ac{QLoRA} e obteve uma acurácia de 87,4\%. Na etapa final, um
+    Nesta fase, o melhor modelo foi treinado com \ac{LoRA} e obteve uma acurácia de 86,2\%. Na etapa final, um
     conjunto de imagens de aproximação, proveniente do \ac{STT/SC}, foi utilizado no \textit{fine-tuning} para a
     classificação de lesões e geração de laudos. O modelo final treinado com \ac{QLoRA} e apresentou uma acurácia de
     45,2\%, enquanto o modelo com \ac{LoRA} obteve 44,5\%. O baixo desempenho dos modelos finais na classificação pode
@@ -59,7 +59,7 @@
         generation of reports, this work carried out the fine-tuning of \acf{LLaMA} 3.2 11B with the \acf{QLoRA} and
         \acf{LoRA} techniques, both based on \acf{PEFT}. The development was carried out in two stages. In the first,
         the \acf{HAM10000} dermatoscopy image dataset was used in the fine-tuning of the model to only classify skin
-        lesions. In this phase, the best model was trained with \ac{QLoRA} and obtained an accuracy of 87.4\%. In the
+        lesions. In this phase, the best model was trained with \ac{LoRA} and obtained an accuracy of 86.2\%. In the
         final stage, a set of close-up images, from \acf{STT/SC}, was used in the fine-tuning for the classification of
         lesions and generation of reports. The final model trained with QLoRA presented an accuracy of 45.2\%, while
         the model with \ac{LoRA} obtained 44.5\%. The low performance of the final models in the classification can be

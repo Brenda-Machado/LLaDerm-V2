@@ -103,7 +103,7 @@
 \hypersetup{
 		pdftitle={\@title},
 		pdfauthor={\@author},
-    	pdfsubject={\imprimirpreambulo},
+		pdfsubject={\imprimirpreambulo},
 	    pdfcreator={LaTeX with abnTeX2},
 		pdfkeywords={ufsc, latex, abntex2},
 		colorlinks=true,
@@ -158,9 +158,10 @@
 \endgroup
 
 % Apêndices
-%\begin{apendicesenv}
-%	\partapendices* 
-%	\input{aftertext/apendice_a}
-%\end{apendicesenv}
+\begin{apendicesenv}
+	\partapendices* 
+	\input{aftertext/repositories}
+	\input{aftertext/sbc-article}
+\end{apendicesenv}
 
 \end{document}
