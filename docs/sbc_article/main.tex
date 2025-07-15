@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{sbc/sbc-template}
+\usepackage{graphicx,url}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}  
+\usepackage[printonlyused]{acronym}
+\usepackage{csquotes}
+\usepackage[backend = biber, style = abnt]{biblatex}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mdframed}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{multirow}
+
+\newmdenv[
+  leftmargin=0.5cm,
+  rightmargin=0.5cm,
+  skipabove=1em,
+  skipbelow=1em,
+  linecolor=gray!90,
+  linewidth=1pt,
+  leftline=false,
+  rightline=false
+]{dialogue}
+
+\newcommand{\speak}[1]{\textbf{#1:}}
+
+\sloppy
+
+\title{Fine-tuning do MLLM LLaMA para a Classificação de Lesões de Pele e Geração de Laudos}
+
+\author{Eric Fernandes Evaristo\inst{1}, Aldo von Wangenheim\inst{1}, Rodrigo de Paula e Silva Ribeiro\inst{1} }
+
+\address{Departamento de Informática e Estatística \\ Centro Tecnológico -- Universidade Federal de Santa Catarina
+(UFSC)}
+
+\addbibresource{references.bib}
+
+\begin{document}
+
+\input{acronyms}
+
+\maketitle
+
+\input{chapters/0-abstract}
+\input{chapters/1-introduction}
+\input{chapters/2-theory}
+\input{chapters/3-related_works}
+\input{chapters/4-development}
+\input{chapters/5-analysis}
+\input{chapters/6-conclusion}
+
+\clearpage
+
+\setlength{\bibitemsep}{1.5em}
+\printbibliography
+
+\end{document}

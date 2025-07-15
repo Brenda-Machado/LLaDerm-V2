@@ -1,41 +1,40 @@
-\chapter{Desenvolvimento}
+\section{Desenvolvimento}
 
 Esta seção apresentará as duas etapas do desenvolvimento do trabalho. Para cada etapa, será apresentado o processo de
 treinamento e de execução de testes, incluindo também a análise dos resultados.
 
-\section{Tecnologias Utilizadas}
+\subsection{Tecnologias Utilizadas}
 
 Para ambas as etapas, as mesmas tecnologias foram utilizadas. O processamento de dados e \textit{fine-tuning} foram
 feitos com \textit{scripts} em Python 3.10 e \textit{Jupyter notebooks}. O gerenciador Poetry foi utilizado para
 gerenciar as dependências e o \textit{framework} Unsloth foi utilizado no \textit{fine-tuning}. Por fim, os
 treinamentos foram realizados com uma placa NVIDIA H100 de 80 GB que faz parte de uma plataforma NVIDIA DGX H100.
 
-\section{Etapa Inicial de Desenvolvimento}
+\subsection{Etapa Inicial de Desenvolvimento}
 
-Nesta seção, a etapa inicial de \textit{fine-tuning} do \ac{LLaMA}-3.2-11B será apresentada, demonstrando um caráter
-exploratório que visa o desenvolvimento do código base para os próximos experimentos e também analisa a capacidade
-de classificação do modelo quando treinado de diferentes formas. Nesta etapa, o modelo passou pelo \textit{fine-tuning}
-para classificar imagens de lesão de pele advindas de exames de dermatoscopia.
+Nesta etapa, o \ac{llama}-3.2-11B passou pelo \textit{fine-tuning} para classificar imagens de lesão de pele advindas
+de exames de dermatoscopia. A etapa inicial demonstra um caráter exploratório que visa o desenvolvimento do código base
+para os próximos experimentos e também analisa a capacidade de classificação do modelo quando treinado de diferentes
+formas.
 
-\subsection{Conjunto de Dados}
+\subsubsection{Conjunto de Dados}
 
-Para os experimentos iniciais, utilizou-se o conjunto de dados \ac{HAM10000} de \textcite{tschandl2018ham10000}, que
+Para os experimentos iniciais, utilizou-se o conjunto de dados \ac{ham10000} de \textcite{tschandl2018ham10000}, que
 possui 13354 imagens de dermatoscopia com resolução de \begin{math}600 \times 450\end{math} pixels. São associadas às
 imagens informações como a doença causadora da lesão de pele, a idade do paciente, sexo e localização da lesão.
 
 Optou-se pela não inclusão de outros conjuntos de dados com imagens de dermatoscopia no treinamento, como os do
-\ac{ISIC}, devido à complexidade na adaptação do formato. O código desenvolvido foi idealizado para o conjunto de dados
-final, proveniente do \ac{STT/SC}, tornando necessário o uso de um conjunto com formato próximo para o treinamento. Por
-fim, como as comparações foram realizadas com um volume relativamente pequeno de dados, o \ac{HAM10000} foi suficiente,
+\ac{isic}, devido à complexidade na adaptação do formato. O código desenvolvido foi idealizado para o conjunto de dados
+final, proveniente do \ac{sttsc}, tornando necessário o uso de um conjunto com formato próximo para o treinamento. Por
+fim, como as comparações foram realizadas com um volume relativamente pequeno de dados, o \ac{ham10000} foi suficiente,
 eliminando a necessidade de outros conjuntos.
 
 O conjunto de dados é separado nas seções de treinamento, teste e validação, que possuem 9577, 1285 e 2492 imagens,
 respectivamente. A \autoref{tab:ham10000_proportion} apresenta as proporções entre as categorias de lesões de pele. Os
-dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{HAM10000} fornecida por
+dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{ham10000} fornecida por
 \textcite{skin_cancer_dataset}. A proporção das lesões é conservada entre as seções do conjunto de dados.
 
 \begin{table}[ht]
-    \caption{\small Proporção entre as diferentes categorias de lesões de pele no \ac{HAM10000}.}
     \centering
     \begin{tabular}{l|c}
         \hline
@@ -43,13 +42,14 @@ dados foram obtidos a partir da plataforma Hugging Face com uma versão do \ac{H
         Nevo melanocítico                    & 66,88          \\
         Melanoma                             & 11,23          \\
         Lesões similares à queratose benigna & 10,94          \\
-        \ac{CBC}                             & 5,08           \\
+        \ac{cbc}                             & 5,08           \\
         Queratose actínica                   & 3,29           \\
         Lesões vasculares                    & 1,42           \\
         Dermatofibroma                       & 1,15           \\ \hline
     \end{tabular}
     \label{tab:ham10000_proportion}
-    \fonte{\textcite{tschandl2018ham10000}}
+    \caption{Proporção entre as diferentes categorias de lesões de pele no \ac{ham10000}. Fonte:
+    \textcite{tschandl2018ham10000}.}
 \end{table}
 
 \subsubsection{Estruturação dos Dados no Modelo Conversacional}
@@ -63,40 +63,31 @@ O modelo utilizado não possui suporte nativo à utilização de textos em portu
 os diálogos foram produzidos em inglês. O padrão de diálogo pode ser conferido abaixo:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem>}} \\
-    \speak{Modelo} \textit{The skin lesion in the image is \textbf{<lesão de pele>}.}
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem)}} \\
+    \speak{Modelo} \textit{The skin lesion in the image is \textbf{(lesão de pele)}.}
 \end{dialogue}
-
-\subsection{\textit{Fine-tuning}}
-
-O \textit{Fine-tuning} se consistiu no treinamento do modelo \ac{LLaMA}-3.2-11B, que possui 11 bilhões de parâmetros,
-com as técnicas \ac{QLoRA} e \ac{LoRA}.
 
 \subsubsection{\textit{Fine-tuning} com 450 e 900 Amostras}
 
-A primeira etapa nos experimentos foi a realização o \textit{fine-tuning} por meio do treinamento com \ac{QLoRA} com
+A primeira etapa nos experimentos foi a realização o \textit{fine-tuning} por meio do treinamento com \ac{qlora} com
 450 amostras de treinamento e 50 de validação. Os hiperparâmetros\footnote{parâmetros de treinamento} utilizados no
 treinamento estão na \autoref{tab:qlora_500_config}, alguns deles foram omitidos por serem menos relevantes nessa
-etapa. O \ac{rsLoRA} de \textcite{kalajdzievski2023rank} foi utilizado para melhorar o desempenho, utilizando um fator
+etapa. O \ac{rslora} de \textcite{kalajdzievski2023rank} foi utilizado para melhorar o desempenho, utilizando um fator
 de escala \begin{math}\frac{\alpha_{LoRA}}{\sqrt{r}}\end{math} em vez do \begin{math}\frac{\alpha_{LoRA}}{r}\end{math}
-do \ac{LoRA} original. Por fim, também foi utilizado o otimizador \ac{Adam} na sua versão paginada de 32 bits. A
+do \ac{lora} original. Por fim, também foi utilizado o otimizador \ac{adam} na sua versão paginada de 32 bits. A
 primeira linha da \autoref{tab:500_training} inclui os dados sobre o treinamento e a \autoref{fig:loss_qlora_500}
 apresenta o \textit{loss} de treinamento e validação ao longo dos passos.
 
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \ac{QLoRA} com 450 e 900 amostras. A primeira seção se refere às
-    configurações
-    específicas de \ac{PEFT}, enquanto a
-    segunda se refere ao treinamento em geral.}
     \centering
     \begin{tabular}{l|c}
         \hline
         Hiperparâmetro                             & Valor                                  \\ \hline
-        Camadas e módulos treinados                & Visão, linguagem, atenção e \ac{MLP}   \\
+        Camadas e módulos treinados                & Visão, linguagem, atenção e \ac{mlp}   \\
         \textit{Rank}                              & 32                                     \\
         Alfa (\begin{math}\alpha_{LoRA}\end{math}) & 32                                     \\
         Dropout                                    & 0,1                                    \\
-        \ac{rsLoRA}                                & Sim                                    \\ \hline
+        \ac{rslora}                                & Sim                                    \\ \hline
         Tamanho do lote por dispositivo            & 8                                      \\
         Passo de acumulação de gradiente           & 1                                      \\
         Taxa de aprendizado                        & \begin{math}2 \times 10^{-4}\end{math} \\
@@ -105,106 +96,107 @@ apresenta o \textit{loss} de treinamento e validação ao longo dos passos.
         Decaimento de peso                         & 0,01                                   \\
         Épocas                                     & 5                                      \\
         Passos a cada validação                    & 50                                     \\
-        Otimizador                                 & \ac{Adam} paginado de 32 bits          \\
-        Tipo numérico                              & \ac{BF16}                              \\ \hline
+        Otimizador                                 & \ac{adam} paginado de 32 bits          \\
+        Tipo numérico                              & \ac{bf16}                              \\ \hline
     \end{tabular}
+    \caption{Hiperparâmetros para o \ac{qlora} com 450 e 900 amostras. A primeira seção se refere às
+    configurações
+    específicas de \ac{peft}, enquanto a
+    segunda se refere ao treinamento em geral. Fonte: Autoria própria.}
     \label{tab:qlora_500_config}
-    \fonte{Autoria própria}
-\end{table}
-
-\begin{figure}[ht]
-    \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{QLoRA} com 450 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_500.png}
-    \label{fig:loss_qlora_500}
-    \fonte{Autoria própria.}
-\end{figure}
-
-Em seguida, foi realizado o treinamento com \ac{LoRA}, ou seja, sem quantização, com 450 amostras. Os
-hiperparâmetros utilizados são similares, porém, o \textit{rank} foi reduzido para 16, assim como o
-\begin{math}\alpha_{LoRA}\end{math}. O \ac{rsLoRA} não foi utilizado e a taxa de aprendizado foi reduzida a
-\begin{math}1 \times 10^{-4}\end{math}. Por fim, o otimizador \ac{AdamW} foi utilizado. A segunda linha da
-\autoref{tab:500_training} apresenta os dados de treinamento com \ac{LoRA} e a \autoref{fig:loss_lora_500} apresenta o
-\textit{loss}. O treinamento foi aplicado somente sobre 64174400 parâmetros, uma quantidade menor do que a usada no
-\ac{QLoRA} por conta do \textit{rank} reduzido.
-
-\begin{figure}[ht]
-    \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{LoRA} com 450 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_500.png}
-    \label{fig:loss_lora_500}
-    \fonte{Autoria própria.}
-\end{figure}
-
-\begin{table}[ht]
-    \caption{\small Dados sobre o treinamento com \ac{QLoRA} e \ac{LoRA} com 450 amostras.}
-    \centering
-    \begin{tabular}{l|c|c|c|c}
-        \hline
-        Método de treinamento & Parâmetros & Duração (min) & Passos & Memória (GB) \\ \hline
-        \ac{QLoRA}            & 134348800  & 16,17         & 110    & 18,69        \\
-        \ac{LoRA}             & 64174400   & 26,42         & 140    & 40,35        \\ \hline
-    \end{tabular}
-    \label{tab:500_training}
-    \fonte{Autoria própria}
-\end{table}
-
-O \textit{fine-tuning} com 900 amostras foi feito sem a alteração nos hiperparâmetros do \ac{QLoRA} e \ac{LoRA}. As
-informações sobre o treinamento podem ser conferidas na \autoref{tab:1000_training}, enquanto o \textit{loss} pode ser
-conferido na \autoref{fig:loss_qlora_1000} e na \autoref{fig:loss_lora_1000}.
-
-\begin{table}[ht]
-    \caption{\small Dados sobre o treinamento com \ac{QLoRA} e \ac{LoRA} com 900 amostras.}
-    \centering
-    \begin{tabular}{l|c|c|c|c}
-        \hline
-        Método de treinamento & Parâmetros & Duração (min) & Passos & Memória (GB) \\ \hline
-        \ac{QLoRA}            & 134348800  & 32,08         & 225    & 18,69        \\
-        \ac{LoRA}             & 67174400   & 41,76         & 280    & 31,96        \\ \hline
-    \end{tabular}
-    \label{tab:1000_training}
-    \fonte{Autoria própria}
 \end{table}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{QLoRA} com 900 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_1000.png}
-    \label{fig:loss_qlora_1000}
-    \fonte{Autoria própria.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_500.png}
+    \label{fig:loss_qlora_500}
+    \caption{\textit{Loss} de treinamento e validação para o \ac{qlora} com 450 amostras. Fonte: Autoria própria.}
 \end{figure}
+
+Em seguida, foi realizado o treinamento com \ac{lora}, ou seja, sem quantização, com 450 amostras. Os
+hiperparâmetros utilizados são similares, porém, o \textit{rank} foi reduzido para 16, assim como o
+\begin{math}\alpha_{LoRA}\end{math}. O \ac{rslora} não foi utilizado e a taxa de aprendizado foi reduzida a
+\begin{math}1 \times 10^{-4}\end{math}. Por fim, o otimizador \ac{adamw} foi utilizado. A segunda linha da
+\autoref{tab:500_training} apresenta os dados de treinamento com \ac{lora} e a \autoref{fig:loss_lora_500} apresenta o
+\textit{loss}. O treinamento foi aplicado somente sobre 64174400 parâmetros, uma quantidade menor do que a usada no
+\ac{qlora} por conta do \textit{rank} reduzido.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{LoRA} com 900 amostras.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_500.png}
+    \label{fig:loss_lora_500}
+    \caption{\textit{Loss} de treinamento e validação para o \ac{lora} com 450 amostras. Fonte: Autoria própria.}
+\end{figure}
+
+\clearpage
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|c|c|c|c}
+        \hline
+        Método de treinamento & Parâmetros & Duração (min) & Passos & Memória (GB) \\ \hline
+        \ac{qlora}            & 134348800  & 16,17         & 110    & 18,69        \\
+        \ac{lora}             & 64174400   & 26,42         & 140    & 40,35        \\ \hline
+    \end{tabular}
+    \label{tab:500_training}
+    \caption{Dados sobre o treinamento com \ac{qlora} e \ac{lora} com 450 amostras. Fonte: Autoria própria.}
+\end{table}
+
+O \textit{fine-tuning} com 900 amostras foi feito sem a alteração nos hiperparâmetros do \ac{qlora} e \ac{lora}. As
+informações sobre o treinamento podem ser conferidas na \autoref{tab:1000_training}, enquanto o \textit{loss} pode ser
+conferido na \autoref{fig:loss_qlora_1000} e na \autoref{fig:loss_lora_1000}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|c|c|c|c}
+        \hline
+        Método de treinamento & Parâmetros & Duração (min) & Passos & Memória (GB) \\ \hline
+        \ac{qlora}            & 134348800  & 32,08         & 225    & 18,69        \\
+        \ac{lora}             & 67174400   & 41,76         & 280    & 31,96        \\ \hline
+    \end{tabular}
+    \label{tab:1000_training}
+    \caption{Dados sobre o treinamento com \ac{qlora} e \ac{lora} com 900 amostras. Fonte: Autoria própria.}
+\end{table}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_1000.png}
+    \label{fig:loss_qlora_1000}
+    \caption{\textit{Loss} de treinamento e validação para o \ac{qlora} com 900 amostras. Fonte: Autoria própria.}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[ht]
+    \centering
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_1000.png}
     \label{fig:loss_lora_1000}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento e validação para o \ac{lora} com 900 amostras. Fonte: Autoria própria.}
 \end{figure}
 
 \subsubsection{\textit{Fine-tuning} com 5000 Amostras}
 
 Os hiperparâmetros foram modificados para os treinamentos com 5000 amostras, assim, foi possível avaliar o
 impacto de diferentes configurações de treinamento. As configurações na \autoref{tab:qlora_5000_config} se referem
-tanto ao treinamento com \ac{QLoRA} quanto ao com \ac{LoRA}. Os dados dos treinamentos podem ser conferidos na
+tanto ao treinamento com \ac{qlora} quanto ao com \ac{lora}. Os dados dos treinamentos podem ser conferidos na
 \autoref{tab:5000_training}, enquanto o \textit{loss} pode ser conferido na \autoref{fig:loss_qlora_5000} e
 \autoref{fig:loss_lora_5000}. Observa-se também que os hiperparâmetros utilizados levaram a uma maior instabilidade no
 \textit{loss} ao longo dos passos.
 
+\clearpage
+
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \textit{fine-tuning} com 5000 amostras. A primeira seção se refere às
-    configurações específicas de \ac{PEFT}, enquanto a segunda se refere ao treinamento em geral.}
     \centering
     \begin{tabular}{l|c}
         \hline
         Hiperparâmetro                             & Valor                                  \\ \hline
-        Camadas e módulos treinados                & Visão, linguagem, atenção e \ac{MLP}   \\
+        Camadas e módulos treinados                & Visão, linguagem, atenção e \ac{mlp}   \\
         \textit{Rank}                              & 64                                     \\
         Alfa (\begin{math}\alpha_{LoRA}\end{math}) & 64                                     \\
         Dropout                                    & 0,05                                   \\
-        \ac{rsLoRA}                                & Sim                                    \\ \hline
+        \ac{rslora}                                & Sim                                    \\ \hline
         Tamanho do lote por dispositivo            & 8                                      \\
         Passo de acumulação de gradiente           & 1                                      \\
         Taxa de aprendizado                        & \begin{math}1 \times 10^{-4}\end{math} \\
@@ -213,50 +205,50 @@ tanto ao treinamento com \ac{QLoRA} quanto ao com \ac{LoRA}. Os dados dos treina
         Decaimento de peso                         & 0,01                                   \\
         Épocas                                     & 3                                      \\
         Passos a cada validação                    & A cada 5\% dos passos                  \\
-        Otimizador                                 & \ac{Adam} paginado de 32 bits          \\
-        Tipo numérico                              & \ac{BF16}                              \\ \hline
+        Otimizador                                 & \ac{adam} paginado de 32 bits          \\
+        Tipo numérico                              & \ac{bf16}                              \\ \hline
     \end{tabular}
     \label{tab:qlora_5000_config}
-    \fonte{Autoria própria}
+    \caption{Hiperparâmetros para o \textit{fine-tuning} com 5000 amostras. A primeira seção se refere às
+    configurações específicas de \ac{peft}, enquanto a segunda se refere ao treinamento em geral. Fonte: Autoria
+    própria.}
 \end{table}
 
 \begin{table}[ht]
-    \caption{\small Dados sobre o treinamento com \ac{QLoRA} e \ac{LoRA} com 5000 amostras.}
     \centering
     \begin{tabular}{l|c|c|c|c}
         \hline
         Método de treinamento & Parâmetros & Duração (min) & Passos & Memória (GB) \\ \hline
-        \ac{QLoRA}            & 268697600  & 96,63         & 1875   & 18,97        \\
-        \ac{LoRA}             & 268697600  & 100,33        & 1875   & 31,48        \\ \hline
+        \ac{qlora}            & 268697600  & 96,63         & 1875   & 18,97        \\
+        \ac{lora}             & 268697600  & 100,33        & 1875   & 31,48        \\ \hline
     \end{tabular}
+    \caption{Dados sobre o treinamento com \ac{qlora} e \ac{lora} com 5000 amostras. Fonte: Autoria própria.}
     \label{tab:5000_training}
-    \fonte{Autoria própria}
 \end{table}
 
-\begin{figure}[ht]
-    \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{QLoRA} com 5000 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_5000.png}
-    \label{fig:loss_qlora_5000}
-    \fonte{Autoria própria.}
-\end{figure}
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento e validação para o \ac{LoRA} com 5000 amostras.}
-    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_5000.png}
-    \label{fig:loss_lora_5000}
-    \fonte{Autoria própria.}
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_5000.png}
+    \label{fig:loss_qlora_5000}
+    \caption{\textit{Loss} de treinamento e validação para o \ac{qlora} com 5000 amostras. Fonte: Autoria própria.}
 \end{figure}
 
-\subsection{Testes}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_5000.png}
+    \label{fig:loss_lora_5000}
+    \caption{\textit{Loss} de treinamento e validação para o \ac{lora} com 5000 amostras. Fonte: Autoria própria.}
+\end{figure}
+
+\subsubsection{Testes}
 
 Os testes se consistiram de uma série de perguntas aos modelos, onde foram utilizadas duas modalidades de pergunta, uma
 livre e outra objetiva. Na pergunta livre o \textit{prompt} é definido como:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem>}}
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem)}}
 \end{dialogue}
 
 Já na pergunta objetiva, é esperado que o modelo informe apenas o nome da doença com base nas opções possíveis do
@@ -267,19 +259,13 @@ conjunto de dados, sendo que o \textit{prompt} usado é:
     The diseases to
     be classified are: melanocytic Nevi,
     melanoma, benign keratosis-like lesions, basal cell carcinoma, actinic keratoses, vascular lesions and
-    dermatofibroma.\textbf{<imagem>}}
+    dermatofibroma.\textbf{(imagem)}}
 \end{dialogue}
 
-Foram feitas 100 perguntas livres e 1000 perguntas objetivas para cada modelo treinado e para o \ac{LLaMA}-3.2-11B na
+Foram feitas 100 perguntas livres e 1000 perguntas objetivas para cada modelo treinado e para o \ac{llama}-3.2-11B na
 versão quantizada e não quantizada. As imagens utilizadas vieram da seção de teste do conjunto de dados. A
 temperatura, uma variável que define a previsibilidade do modelo, foi definida como 0,1, reforçando a objetividade das
 respostas. Além disso, o número máximo de \textit{tokens} foi definido como 128.
-
-\subsection{Análise dos Resultados Iniciais}
-
-Os testes com perguntas livres foram avaliados manualmente para observar o formato de resposta dos modelos, enquanto os
-testes com perguntas objetivas foram processados para a extração das lesões previstas para as imagens. Com esses dados,
-foram geradas matrizes de confusão com os cálculos da acurácia de cada modelo.
 
 \subsubsection{Análise do LLaMA-3.2-11B}
 
@@ -288,7 +274,7 @@ livre. Em geral, as respostas apresentaram uma estrutura de passos que se baseia
 lesões de pele. O diálogo abaixo apresenta uma classificação correta para a imagem de um melanoma:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem de um melanoma>}} \\
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem de um melanoma)}} \\
     \speak{Modelo} \textit{\textbf{Step 1: Identify the lesion.} \\
     The image shows a skin lesion with an irregular border and a dark brown color. \\
     \textbf{Step 2: Determine the characteristics of the lesion.} \\
@@ -305,7 +291,7 @@ Muitas respostas apresentaram uma classificação incorreta, embora tenham sido 
 abaixo, o modelo classificou um nevo melanocítico como um melanoma:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem de um nevo melanocítico>}} \\
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem de um nevo melanocítico)}} \\
     \speak{Modelo} \textit{\textbf{Step 1: Identify the lesion} \\
     The image shows a brown, irregularly shaped lesion with a darker brown border. \\
     \textbf{Step 2: Determine the characteristics of the lesion} \\
@@ -319,7 +305,7 @@ Algumas respostas não apresentaram uma classificação precisa, sendo que o mod
 tratava de uma lesão de pele. Um exemplo assim pode ser visto no diálogo abaixo:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem de um nevo melanocítico>}} \\
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem de um nevo melanocítico)}} \\
     \speak{Modelo} \textit{The skin lesion in the image appears to be a dermatological condition, likely a typeof skin
     cancer or a
     benign growth. However, without
@@ -332,7 +318,7 @@ acurácia e a não quantizada atingiu 14\%.
 
 A \autoref{fig:confusion_matrix_llama_quantized} e a \autoref{fig:confusion_matrix_llama} apresentam as matrizes de
 confusão normalizadas pelos valores verdadeiros para o modelo quantizado e o não quantizado, respectivamente. Nota-se
-que eles classificaram as lesões como melanoma em uma escala desproporcional, o \ac{LLaMA} quantizado classificou
+que eles classificaram as lesões como melanoma em uma escala desproporcional, o \ac{llama} quantizado classificou
 97,6\% das lesões como melanoma, enquanto o não quantizado classificou 88,3\%. Também pode-se notar uma tendência da
 classificação de lesões vasculares como dermatofibroma por parte do modelo não quantizado.
 
@@ -340,48 +326,46 @@ Foram registradas 3 respostas incertas para o modelo quantizado e apenas uma par
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B quantizado.}
 
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_quantized.png}
     \label{fig:confusion_matrix_llama_quantized}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B quantizado. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B não quantizado.}
-    
+
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct.png}
     \label{fig:confusion_matrix_llama}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B não quantizado. Fonte: Autoria própria.}
 \end{figure}
 
 \subsubsection{Análise dos Modelos após o \textit{Fine-tuning}}
 
 Para as perguntas livres, todos os modelos treinados responderam no formato especificado no treinamento. O primeiro
 diálogo abaixo apresenta uma classificação correta e o segundo apresenta uma incorreta, ambas as respostas foram dadas
-pelo modelo treinado com \ac{QLoRA} com 450 amostras:
+pelo modelo treinado com \ac{qlora} com 450 amostras:
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem de um nevo melanocítico>}} \\
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem de um nevo melanocítico)}} \\
     \speak{Modelo} \textit{The skin lesion in the image is melanocytic Nevi.}
 \end{dialogue}
 
 \begin{dialogue}
-    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{<imagem de um nevo melanoma>}} \\
+    \speak{Usuário} \textit{Classify the skin lesion in the image. \textbf{(imagem de um nevo melanoma)}} \\
     \speak{Modelo} \textit{The skin lesion in the image is benign keratosis-like lesions.}
 \end{dialogue}
 
-Os modelos trainados com \ac{QLoRA} com 450 e 5000 amostras, e com \ac{LoRA} com 5000 amostras apresentaram um
+Os modelos trainados com \ac{qlora} com 450 e 5000 amostras, e com \ac{lora} com 5000 amostras apresentaram um
 problema em que as respostas não obedecem ao formato especificado na pergunta objetiva, respondendo com o texto
 completo.
 
-A acurácia nas respostas às perguntas objetivas aumentou consideravelmente com o \textit{fine-tuning} com \ac{QLoRA},
+A acurácia nas respostas às perguntas objetivas aumentou consideravelmente com o \textit{fine-tuning} com \ac{qlora},
 chegando a atingir 65,5\% com 450 amostras. Porém, o modelo gerado com esse treinamento tende a classificar a maioria
 das lesões como nevo melanocítico, o que indica que a acurácia maior pode ser simplesmente devido a uma quantidade
-maior de nevos melanocíticos nos dados de teste. Para o modelo treinado com \ac{LoRA}, o desempenho foi menor,
+maior de nevos melanocíticos nos dados de teste. Para o modelo treinado com \ac{lora}, o desempenho foi menor,
 atingindo apenas 49,5\% de acurácia para a mesma quantidade de amostras.
 
 Em geral, como pode ser visto na \autoref{fig:confusion_matrix_qlora_450} e \autoref{fig:confusion_matrix_lora_450}, as
@@ -390,51 +374,51 @@ não ideais.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA} e 450 amostras.}
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_qlora_450.png}
     \label{fig:confusion_matrix_qlora_450}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B treinado com \ac{qlora} e 450 amostras. Fonte: Autoria
+    própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{LoRA} e 450 amostras.}
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_lora_450.png}
     \label{fig:confusion_matrix_lora_450}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B treinado com \ac{lora} e 450 amostras. Fonte: Autoria
+    própria.}
 \end{figure}
 
 A acurácia decaiu levemente após o \textit{fine-tuning} com 900 amostas, conforme apresentado na
 \autoref{fig:confusion_matrix_qlora_900} e \autoref{fig:confusion_matrix_lora_900}, ficando em 65.2\% para o modelo
-treinado com \ac{QLoRA} e 42\% para o treinado com \ac{LoRA}. Porém, o modelo treinado com \ac{QLoRA} apresenta um
+treinado com \ac{qlora} e 42\% para o treinado com \ac{lora}. Porém, o modelo treinado com \ac{qlora} apresenta um
 padrão melhor de classificação, reconhecendo melhor as lesões de nevos melanocíticos e de queratoses actínicas.
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA} e 900 amostras.}
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_qlora_900.png}
     \label{fig:confusion_matrix_qlora_900}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B treinado com \ac{qlora} e 900 amostras. Fonte: Autoria
+    própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{LoRA} e 900 amostras.}
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_lora_900.png}
     \label{fig:confusion_matrix_lora_900}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B treinado com \ac{lora} e 900 amostras. Fonte: Autoria
+    própria.}
 \end{figure}
 
-Com 5000 amostras, ambos os modelos treinados com \ac{QLoRA} e \ac{LoRA} apresentaram resultados melhores, com 85,4\% e
+Com 5000 amostras, ambos os modelos treinados com \ac{qlora} e \ac{lora} apresentaram resultados melhores, com 85,4\% e
 86,2\% de acurácia, respectivamente. Deve-se observar que as configurações de treinamento foram modificadas, sendo que
-os dois métodos utilizaram hiperparâmetros similares. O \textit{fine-tuning} com \ac{LoRA} se mostrou levemente melhor
-dessa vez, demonstrando que o baixo desempenho do \ac{LoRA} nos outros treinamentos foi por conta de uma escolha não
+os dois métodos utilizaram hiperparâmetros similares. O \textit{fine-tuning} com \ac{lora} se mostrou levemente melhor
+dessa vez, demonstrando que o baixo desempenho do \ac{lora} nos outros treinamentos foi por conta de uma escolha não
 ideal de hiperparâmetros. A \autoref{fig:confusion_matrix_qlora_5000} e a \autoref{fig:confusion_matrix_lora_5000}
 apresentam estes resultados. A \autoref{tab:training_accuracies} apresenta as acurácias de forma resumida.
 
@@ -442,73 +426,69 @@ apresentam estes resultados. A \autoref{tab:training_accuracies} apresenta as ac
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão do \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA} e 5000 amostras.}
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_qlora_5000.png}
     \label{fig:confusion_matrix_qlora_5000}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão do \ac{llama}-3.2-11B treinado com \ac{qlora} e 5000 amostras. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão para o \ac{LLaMA}-3.2-11B treinado com \ac{LoRA} e 5000 amostras.}
     \includegraphics[width=0.9375\columnwidth,keepaspectratio]{images/confusion_matrix_lora_5000.png}
     \label{fig:confusion_matrix_lora_5000}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão para o \ac{llama}-3.2-11B treinado com \ac{lora} e 5000 amostras. Fonte: Autoria
+    própria.}
 \end{figure}
 
 \begin{table}[ht]
-    \caption{\small Acurácia de cada modelo treinado.}
     \centering
     \begin{tabular}{l|c|c}
         \hline
         Método de treinamento       & Quantidade de amostras & Acurácia (\%) \\ \hline
-        \multirow{3}{*}{\ac{QLoRA}} & 450                    & 65,5          \\
+        \multirow{3}{*}{\ac{qlora}} & 450                    & 65,5          \\
                                     & 900                    & 65,2          \\
                                     & 5000                   & 85,4          \\ \hline
-        \multirow{3}{*}{\ac{LoRA}}  & 450                    & 49,5          \\
+        \multirow{3}{*}{\ac{lora}}  & 450                    & 49,5          \\
                                     & 900                    & 42,0          \\
                                     & 5000                   & 86,2          \\ \hline
     \end{tabular}
     \label{tab:training_accuracies}
-    \fonte{Autoria própria}
+    \caption{Acurácia de cada modelo treinado. Fonte: Autoria própria.}
 \end{table}
 
-\clearpage
+\subsection{Etapa Final de Desenvolvimento}
 
-\section{Etapa Final de Desenvolvimento}
-
-Na etapa final de desenvolvimento, o \ac{LLaMA}-3.2-11B passou pelo \textit{fine-tuning} com o conjunto de dados
-curados do \ac{STT/SC}. O treinamento foi feito com imagens de aproximação, focando na classificação das lesões de pele
+Na etapa final de desenvolvimento, o \ac{llama}-3.2-11B passou pelo \textit{fine-tuning} com o conjunto de dados
+curados do \ac{sttsc}. O treinamento foi feito com imagens de aproximação, focando na classificação das lesões de pele
 e classe de risco, e também na geração de conclusões sobre as lesões com recomendações detalhadas.
 
-\subsection{Conjunto de Dados}
+\subsubsection{Conjunto de Dados}
 
-O conjunto de dados curados do \ac{STT/SC} possui 3651 exames e 31243 imagens. Cada exame pode possuir múltiplas séries
+O conjunto de dados curados do \ac{sttsc} possui 3651 exames e 31243 imagens. Cada exame pode possuir múltiplas séries
 de imagens, sendo que algumas das séries, especificamente de imagens de dermatoscopia e aproximação, estão associadas a
 lesões específicas. As séries de imagens panorâmicas podem incluir múltiplas lesões. Cada exame possui um texto que
 inclui o laudo para cada lesão de pele.
 
-Os dados originais fornecidos incluem as imagens, um arquivo em \ac{JSON} contendo as associações entre os \acp{ID} dos
-exames e as suas imagens, e um arquivo no formato \ac{CSV} com o texto dos laudos.
+Os dados originais fornecidos incluem as imagens, um arquivo em \ac{json} contendo as associações entre os \acp{id} dos
+exames e as suas imagens, e um arquivo no formato \ac{csv} com o texto dos laudos.
 
 \subsubsection{Sanitização e Preparação do Conjunto de Dados}
 
 Para realizar os experimentos, foi necessária a sanitização e preparação do conjunto de dados. A necessidade deste
-processo surgiu da falta de estrutura dos laudos no arquivo \ac{CSV}, sendo que para cada exame, os laudos das
+processo surgiu da falta de estrutura dos laudos no arquivo \ac{csv}, sendo que para cada exame, os laudos das
 lesões estavam unificadas em um único texto. Além disso, a formatação apresentava inconsistências e elementos
-indesejados, como rótulos de \ac{HTML}. Por fim, o arquivo \ac{JSON} possuía referências a imagens de categorias que
+indesejados, como rótulos de \ac{html}. Por fim, o arquivo \ac{json} possuía referências a imagens de categorias que
 não seriam utilizadas, como as de dermatoscopia e panorâmica. Todo o processo de sanitização foi realizado com um
 \textit{Jupyter notebook} e pode ser visto na \autoref{fig:dataset_building}.
 
 Inicialmente, foi feita extração das lesões de pele através da seleção das lesões que possuíam imagens de aproximação
-no arquivo \ac{JSON}. Todas as lesões foram associadas aos seus respectivos exames através do \ac{ID} do exame. No
+no arquivo \ac{json}. Todas as lesões foram associadas aos seus respectivos exames através do \ac{id} do exame. No
 total, 6880 lesões de pele foram selecionadas com este processo.
 
-Em seguida, o arquivo \ac{CSV} com os laudos foi processado para substituir elementos de \ac{HTML} por texto simples e
+Em seguida, o arquivo \ac{csv} com os laudos foi processado para substituir elementos de \ac{html} por texto simples e
 estruturar as informações, separando os laudos de cada lesão. Um desafio nesta etapa foi associar corretamente
-as lesões aos seus respectivos laudos. Enquanto no arquivo \ac{JSON} cada lesão era identificada por um número e
+as lesões aos seus respectivos laudos. Enquanto no arquivo \ac{json} cada lesão era identificada por um número e
 um local no corpo, os laudos continham apenas a localização onde a lesão havia ocorrido. Essa inconsistência poderia
 levar a associações incorretas em casos em que mais de uma lesão tenha se manifestado na mesma parte do corpo. Para
 lidar com este problema, foram contabilizados somente os laudos e lesões não ambíguos. Em alguns casos, as lesões
@@ -524,7 +504,7 @@ durante o treinamento.
 A este ponto no processo, os dados de cada par de imagem e laudo eram os seguintes:
 
 \begin{itemize}
-    \item \ac{ID} do exame;
+    \item \ac{id} do exame;
     \item Referência à imagem;
     \item Laudo:
           \begin{itemize}
@@ -548,7 +528,7 @@ ocorrências foram removidos, pois foram considerados como \textit{outliers} dev
 filtragem, restaram 5903 pares. A estrutura de cada par no conjunto de dados filtrado é a seguinte:
 
 \begin{itemize}
-    \item \ac{ID} do exame;
+    \item \ac{id} do exame;
     \item Referência à imagem;
     \item Laudo:
           \begin{itemize}
@@ -570,14 +550,12 @@ conferida na \autoref{fig:risk_classes}, com a legenda na \autoref{tab:risk_clas
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Distribuição das classes de lesões de pele em ordem decrescente.}
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/skin_lesion_classes.png}
     \label{fig:skin_lesion_classes}
-    \fonte{Autoria própria.}
+    \caption{Distribuição das classes de lesões de pele em ordem decrescente. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{table}[ht]
-    \caption{\small Legenda das classes de lesões de pele.}
     \centering
     \begin{tabular}{l|l}
         \hline
@@ -619,21 +597,19 @@ conferida na \autoref{fig:risk_classes}, com a legenda na \autoref{tab:risk_clas
         34                 & Estrófulo                                                                \\ \hline
     \end{tabular}
     \label{tab:skin_lesion_classes_legend}
-    \fonte{Autoria própria}
+    \caption{Legenda das classes de lesões de pele. Fonte: Autoria própria.}
 \end{table}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Distribuição das classificações de risco em ordem decrescente.}
     \includegraphics[width=0.9\columnwidth,keepaspectratio]{images/risk_classes.png}
     \label{fig:risk_classes}
-    \fonte{Autoria própria.}
+    \caption{Distribuição das classificações de risco em ordem decrescente. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{table}[ht]
-    \caption{\small Legenda das classificações de risco.}
     \centering
     \begin{tabular}{l|l}
         \hline
@@ -646,12 +622,12 @@ conferida na \autoref{fig:risk_classes}, com a legenda na \autoref{tab:risk_clas
                                  & O AMBULATÓRIO DE REFERÊNCIA TERCIÁRIO               \\ \hline
     \end{tabular}
     \label{tab:risk_classes_legend}
-    \fonte{Autoria própria}
+    \caption{Legenda das classificações de risco. Fonte: Autoria própria.}
 \end{table}
 
 Por fim, o conjunto de dados foi seccionado entre um conjunto de treinamento com 80\% dos dados e um de testes com
 20\%. A divisão foi feita de forma estratificada com o método \textit{k-fold} (\begin{math}k = 5\end{math}) com o
-agrupamento baseado nos \acp{ID} dos exames. Este método de divisão garante que os pares de imagens e laudos de um
+agrupamento baseado nos \acp{id} dos exames. Este método de divisão garante que os pares de imagens e laudos de um
 mesmo exame fiquem no mesmo subconjunto de dados, evitando o vazamento de dados, onde o modelo é treinado com pares
 extremamente similares aos do conjunto de teste \cite{ghani2013proceedings}. No total, 4736 pares foram destinados ao
 conjunto de dados de treinamento, enquanto 1167 pares foram para o conjunto de testes.
@@ -664,12 +640,11 @@ a necessidade de validações e ajustes durante o desenvolvimento.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Processo de sanitização e preparação do conjunto de dados. 1: Seleção das lesões de aproximação. 2:
-    Sanitização e estruturação dos laudos. 3: Pareamento entre imagens e laudos. 4: Filtragem e remoção de campos
-    desnecessários dos laudos. 5: Seccionamento do conjunto de dados.}
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/dataset_building.pdf}
     \label{fig:dataset_building}
-    \fonte{Autoria própria.}
+    \caption{Processo de sanitização e preparação do conjunto de dados. 1: Seleção das lesões de aproximação. 2:
+    Sanitização e estruturação dos laudos. 3: Pareamento entre imagens e laudos. 4: Filtragem e remoção de campos
+    desnecessários dos laudos. 5: Seccionamento do conjunto de dados. Fonte: Autoria própria.}
 \end{figure}
 
 \subsubsection{Estruturação dos Dados no Modelo Conversacional} \label{sec:dialogue}
@@ -681,24 +656,24 @@ dos textos no conjunto de dados. O padrão de pergunta e resposta pode ser confe
     \speak{Usuário} Classifique a lesão de pele na imagem, informando a classificação da lesão e classificação de
     risco. \\
     Por fim, inclua uma breve conclusão sobre o diagnóstico. \\
-    As opções de classificação de lesões de pele são: \textbf{<opções de lesões de pele>}. \\
-    As opções de classificação de risco são: \textbf{<opções de classificações de risco>}. \\
+    As opções de classificação de lesões de pele são: \textbf{(opções de lesões de pele)}. \\
+    As opções de classificação de risco são: \textbf{(opções de classificações de risco)}. \\
     Utilize a seguinte formatação para a resposta: \\ \\
-    Classificação: <...>. \\
-    Classificação de risco: <...>. \\
-    Conclusão sobre a lesão: <...>. \\
-    Conclusão: <...>. \\
-    \textbf{<imagem>} \\
-    \speak{Modelo} Classificação: \textbf{<lesão de pele>}. \\
-    Classificação de risco: \textbf{<classificação de risco>}. \\
-    Conclusão sobre a lesão: \textbf{<conclusão sobre a lesão>}. \\
-    Conclusão: \textbf{<conclusão>}.
+    Classificação: (...). \\
+    Classificação de risco: (...). \\
+    Conclusão sobre a lesão: (...). \\
+    Conclusão: (...). \\
+    \textbf{(imagem)} \\
+    \speak{Modelo} Classificação: \textbf{(lesão de pele)}. \\
+    Classificação de risco: \textbf{(classificação de risco)}. \\
+    Conclusão sobre a lesão: \textbf{(conclusão sobre a lesão)}. \\
+    Conclusão: \textbf{(conclusão)}.
 \end{dialogue}
 
 O padrão de diálogo é preenchido com os dados do conjunto de treinamento e as opções de classificação de lesões de pele
 e de risco são oferecidas com base nas classes existentes no conjunto.
 
-\subsection{\textit{Fine-tuning}}
+\subsubsection{\textit{Fine-tuning}}
 
 O \textit{fine-tuning} nesta etapa é similar ao da etapa inicial, porém, como pode ser visto na
 \autoref{tab:final_config}, há divergências nos hiperparâmetros e na estratégia de treinamento. O tamanho do lote por
@@ -711,30 +686,30 @@ recomendações da documentação do \textcite{unsloth2025lora} e do guia de \te
 dados, onde foi determinado que nenhum par de imagem e laudo possui mais de 2183 \textit{tokens}.
 
 \begin{table}[ht]
-    \caption{\small Hiperparâmetros para o \textit{fine-tuning} na etapa final. A primeira seção se refere às
-    configurações específicas de \ac{PEFT}, enquanto a segunda se refere ao treinamento em geral.}
     \centering
     \begin{tabular}{l|c}
         \hline
         Hiperparâmetro                     & Valor                                  \\ \hline
-        Camadas e módulos treinados        & Visão, linguagem, atenção e \ac{MLP}   \\
+        Camadas e módulos treinados        & Visão, linguagem, atenção e \ac{mlp}   \\
         Dropout                            & 0,1                                    \\
-        \ac{rsLoRA}                        & Sim                                    \\ \hline
+        \ac{rslora}                        & Sim                                    \\ \hline
         Tamanho do lote por dispositivo    & 4                                      \\
         Passo de acumulação de gradiente   & 1                                      \\
         Taxa de aprendizado                & \begin{math}1 \times 10^{-4}\end{math} \\
         Decaimento de peso                 & 0,01                                   \\
         Escalonador da taxa de aprendizado & Linear                                 \\
         Razão de aquecimento               & 0,05                                   \\
-        Otimizador                         & \ac{Adam} paginado de 32 bits          \\
-        Tipo numérico                      & \ac{BF16}                              \\
+        Otimizador                         & \ac{adam} paginado de 32 bits          \\
+        Tipo numérico                      & \ac{bf16}                              \\
         Comprimento máximo da sequência    & 2190                                   \\ \hline
     \end{tabular}
     \label{tab:final_config}
-    \fonte{Autoria própria}
+    \caption{Hiperparâmetros para o \textit{fine-tuning} na etapa final. A primeira seção se refere às
+    configurações específicas de \ac{peft}, enquanto a segunda se refere ao treinamento em geral. Fonte: Autoria
+    própria.}
 \end{table}
 
-Foram treinados 8 modelos com variações nos hiperparâmetros de \textit{rank} do \ac{LoRA},
+Foram treinados 8 modelos com variações nos hiperparâmetros de \textit{rank} do \ac{lora},
 \begin{math}\alpha_{LoRA}\end{math} e número de épocas. Essa estratégia foi utilizada para buscar hiperparâmetros
 próximos dos ideais para o novo conjunto de dados de treinamento. O intervalo de busca para o \textit{rank} e
 \begin{math}\alpha_{LoRA}\end{math} constitui-se dos valores 64 e 128 para os dois hiperparâmetros, baseando-se no
@@ -742,12 +717,11 @@ trabalho de \textcite{tribes2023hyperparameter}, que indica que valores maiores 
 Para o número de épocas, o intervalo utilizado foi idealizado com base nos valores recomendados pela documentação do
 \textcite{unsloth2025lora}, variando entre 2, 3, 4 e 5 épocas.
 
-Os modelos foram treinados apenas com \ac{QLoRA} inicialmente. O treinamento com \ac{LoRA} foi realizado apenas uma
-vez, utilizando os hiperparâmetros ideais encontrados após o treinamento com \ac{QLoRA} e os testes de classificação de
+Os modelos foram treinados apenas com \ac{qlora} inicialmente. O treinamento com \ac{lora} foi realizado apenas uma
+vez, utilizando os hiperparâmetros ideais encontrados após o treinamento com \ac{qlora} e os testes de classificação de
 lesões de pele. A \autoref{tab:final_training} apresenta os dados dos treinamentos realizados.
 
 \begin{table}[ht]
-    \caption{\small Duração e memória utilizada durante os treinamentos com \ac{QLoRA}.}
     \centering
     \begin{tabular}{c|c|c|c}
         \hline
@@ -772,99 +746,90 @@ lesões de pele. A \autoref{tab:final_training} apresenta os dados dos treinamen
         47,57                                                                                    \\ \hline
     \end{tabular}
     \label{tab:final_training}
-    \fonte{Autoria própria}
+    \caption{Duração e memória utilizada durante os treinamentos com \ac{qlora}. Fonte: Autoria própria.}
 \end{table}
 
 O \textit{loss} de treinamento para cada caso pode ser conferido nas figuras a seguir:
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 64 e 2 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_18.png}
     \label{fig:loss_qlora_final_18}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 2 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 64 e 3 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_20.png}
     \label{fig:loss_qlora_final_20}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 3 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 64 e 4 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_22.png}
     \label{fig:loss_qlora_final_22}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 4 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 64 e 5 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_24.png}
     \label{fig:loss_qlora_final_24}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 64 e 5 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 128 e 2 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_19.png}
     \label{fig:loss_qlora_final_19}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 2 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 128 e 3 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_21.png}
     \label{fig:loss_qlora_final_21}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 3 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 128 e 4 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_23.png}
     \label{fig:loss_qlora_final_23}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 4 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{QLoRA}, utilizando um \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 128 e 5 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_qlora_final_25.png}
     \label{fig:loss_qlora_final_25}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{qlora}, utilizando um \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 5 épocas. Fonte: Autoria própria.}
 \end{figure}
 
 Após a realização dos testes, a acurácia na classificação de lesões de pele de cada modelo foi obtida. Os resultados
 podem ser vistos na \autoref{tab:final_accuracies}. O modelo treinado com o \textit{rank} e
 \begin{math}\alpha_{LoRA}\end{math} de 128 e com 3 épocas obteve o melhor desempenho, atingindo 45,2\% de acurácia. Com
-base nesses hiperparâmetros, um treinamento com \ac{LoRA} foi realizado, levando no total 276,46 minutos para concluir
+base nesses hiperparâmetros, um treinamento com \ac{lora} foi realizado, levando no total 276,46 minutos para concluir
 e
 utilizando 59,91 GB de memória. O gráfico na \autoref{fig:loss_lora_final_21} apresenta o \textit{loss} do treinamento
-com \ac{LoRA}.
+com \ac{lora}.
 
 \begin{table}[ht]
-    \caption{\small Acurácia dos modelos treinados com \ac{QLoRA}.}
     \centering
     \begin{tabular}{c|c|c}
         \hline
@@ -873,27 +838,28 @@ com \ac{LoRA}.
                                                             & 3                & 43,9          \\
                                                             & 4                & 42,5          \\
                                                             & 5                & 43,6          \\ \hline
-        \multirow{4}{*}{128}                                & 2                & 44,6          \\
+        \multirow{4}{*}{128}                                & 2
+                                                            & 44,6                             \\
                                                             & 3                & 45,2          \\
                                                             & 4                & 44,0          \\
                                                             & 5                & 41,5          \\ \hline
     \end{tabular}
     \label{tab:final_accuracies}
-    \fonte{Autoria própria}
+    \caption{Acurácia dos modelos treinados com \ac{qlora}. Fonte:
+    Autoria própria.}
 \end{table}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small \textit{Loss} de treinamento para o treinamento com \ac{LoRA}, \textit{Rank} e
-    \begin{math}\alpha_{LoRA}\end{math} de 128 e 3 épocas.}
     \includegraphics[width=0.725\columnwidth,keepaspectratio]{images/loss_lora_final_21.png}
     \label{fig:loss_lora_final_21}
-    \fonte{Autoria própria.}
+    \caption{\textit{Loss} de treinamento para o treinamento com \ac{lora}, \textit{Rank} e
+    \begin{math}\alpha_{LoRA}\end{math} de 128 e 3 épocas. Fonte: Autoria própria.}
 \end{figure}
 
-\subsection{Testes}
+\subsubsection{Testes}
 
 Os testes foram realizados através da aplicação de perguntas geradas com base no diálogo da \autoref{sec:dialogue}.
 Para os modelos que passaram pelo \textit{fine-tuning}, foram realizados primeiramente testes com perguntas geradas a
@@ -902,15 +868,9 @@ buscando avaliar a presença de \textit{overfitting} ou \textit{underfitting}. O
 apenas com o conjunto de teste. A temperatura dos modelos foi configurada para \begin{math}5 \times 10^{-3}\end{math}
 para garantir a objetividade nas respostas.
 
-\subsection{Análise dos Resultados Finais}
-
-Primeiramente, a análise do modelo base \ac{LLaMA}-3.2-11B será apresentada a fim de avaliar o desempenho do modelo sem
-o \textit{fine-tuning}. Posteriormente, os modelos treinados com \ac{QLoRA} e \ac{LoRA} que obtiveram a melhor acurácia
-serão analisados.
-
 \subsubsection{Análise do LLaMA-3.2-11B}
 
-A versão quantizada do \ac{LLaMA}-3.2-11B gerou 1104 respostas válidas para as perguntas, seguindo o formato de
+A versão quantizada do \ac{llama}-3.2-11B gerou 1104 respostas válidas para as perguntas, seguindo o formato de
 resposta
 precisamente 94,6\% das vezes. Enquanto o a versão não quantizada gerou 1150 respostas válidas, seguindo o padrão
 98,5\% das vezes. Entretanto, as respostas inválidas não divergiram tanto das respostas válidas, sendo que
@@ -946,30 +906,28 @@ classificou corretamente algumas lesões como ``Câncer de pele Melanoma''.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação das lesões de pele para o \ac{LLaMA}-3.2-11B quantizado. A
-    classe ``I'' denota as respostas inválidas. A legenda das lesões está na
-    \autoref{tab:skin_lesion_classes_legend}.}
 
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_skin_lesions.png}
     \label{fig:confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_skin_lesions}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação das lesões de pele para o \ac{llama}-3.2-11B quantizado. A
+    classe ``I'' denota as respostas inválidas. A legenda das lesões está na
+    \autoref{tab:skin_lesion_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação das lesões de pele para o \ac{LLaMA}-3.2-11B não quantizado. A
-    classe ``I'' denota as respostas inválidas. A legenda das lesões está na
-    \autoref{tab:skin_lesion_classes_legend}.}
 
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_final_skin_lesions.png}
     \label{fig:confusion_matrix_llama_3.2_11b_vision_instruct_final_skin_lesions}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação das lesões de pele para o \ac{llama}-3.2-11B não quantizado. A
+    classe ``I'' denota as respostas inválidas. A legenda das lesões está na
+    \autoref{tab:skin_lesion_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 A precisão, \textit{recall} e pontuação F1 para cada classe de lesão classificadas pelos modelos são apresentadas na
-\autoref{tab:llama_skin_lesion_classification_report}. Com estas métricas, fica evidente que o \ac{LLaMA}-3.2-11B
+\autoref{tab:llama_skin_lesion_classification_report}. Com estas métricas, fica evidente que o \ac{llama}-3.2-11B
 quantizado é enviesado para a previsão da primeira e terceira classe. O \textit{recall} de 0,42 indica que 42\% das
 ocorrências da classe 1 foram classificadas corretamente, mas a precisão de 0,15 demonstra que 85\% das lesões
 classificadas como pertencentes à classe 1 não pertenciam de fato àquela classe. Um padrão similar entre
@@ -980,7 +938,6 @@ observados na matriz de confusão.
 \clearpage
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação das lesões de pele com o \ac{LLaMA}-3.2-11B.}
     \centering
     \begin{tabular}{l|c|c|c|c|c|c}
         \hline
@@ -1094,8 +1051,10 @@ observados na matriz de confusão.
         \\ \hline
     \end{tabular}
     \label{tab:llama_skin_lesion_classification_report}
-    \fonte{Autoria própria}
+    \caption{Métricas da classificação das lesões de pele com o \ac{llama}-3.2-11B. Fonte: Autoria própria.}
 \end{table}
+
+\clearpage
 
 A acurácia na classificação de risco foi levemente maior, chegando a 23,4\% para a versão quantizada e 27,4\% para a
 não quantizada. Porém, de forma similar à classificação de lesões de pele, a classificação de risco foi desbalanceada e
@@ -1108,34 +1067,31 @@ categoria branca estão corretas. O padrão é similar para o modelo não quanti
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação de risco para o \ac{LLaMA}-3.2-11B quantizado.
-    A classe ``I'' denota as respostas inválidas. A legenda das classificações está na
-    \autoref{tab:risk_classes_legend}.}
 
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_risk.png}
     \label{fig:confusion_matrix_llama_3.2_11b_vision_instruct_quantized_final_risk}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação de risco para o \ac{llama}-3.2-11B quantizado.
+    A classe ``I'' denota as respostas inválidas. A legenda das classificações está na
+    \autoref{tab:risk_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação de risco para o \ac{LLaMA}-3.2-11B não
-    quantizado. A classe ``I'' denota as respostas inválidas. A legenda das classificações está na
-    \autoref{tab:risk_classes_legend}.}
 
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_llama_3.2_11b_vision_instruct_final_risk.png}
     \label{fig:confusion_matrix_llama_3.2_11b_vision_instruct_final_risk}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação de risco para o \ac{llama}-3.2-11B não
+    quantizado. A classe ``I'' denota as respostas inválidas. A legenda das classificações está na
+    \autoref{tab:risk_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação de risco com o \ac{LLaMA}-3.2-11B.}
     \centering
     \begin{tabular}{l|c|c|c|c|c|c}
         \hline
-                        & \multicolumn{3}{c|}{\ac{LLaMA} quantizado} & \multicolumn{3}{c}{\ac{LLaMA} não
+                        & \multicolumn{3}{c|}{\ac{llama} quantizado} & \multicolumn{3}{c}{\ac{llama} não
         quantizado}
         \\ \hline
         Risco           & Precisão                                   & \textit{Recall}
@@ -1160,40 +1116,39 @@ categoria branca estão corretas. O padrão é similar para o modelo não quanti
         \\ \hline
     \end{tabular}
     \label{tab:llama_risk_classification_report}
-    \fonte{Autoria própria}
+    \caption{Métricas da classificação de risco com o \ac{llama}-3.2-11B. Fonte: Autoria própria.}
 \end{table}
 
-Os textos das respostas geradas também foram analisados com métricas de \ac{PLN}, especificamente, foram utilizados o
-\ac{BLEU} de \textcite{papineni2002bleu}, \ac{ROUGE} de \textcite{lin2004rouge} e \ac{METEOR} de
+Os textos das respostas geradas também foram analisados com métricas de \ac{pln}, especificamente, foram utilizados o
+\ac{bleu} de \textcite{papineni2002bleu}, \ac{rouge} de \textcite{lin2004rouge} e \ac{meteor} de
 \textcite{denkowski2014meteor}. A \autoref{tab:llama_nlp_metrics} apresenta os valores destas métricas para as
-duas versões do modelo, ambos com resultados similares. O baixo valor do \ac{BLEU} acumulado com diferentes n-gramas
+duas versões do modelo, ambos com resultados similares. O baixo valor do \ac{bleu} acumulado com diferentes n-gramas
 indica uma baixa precisão no uso do vocabulário e estrutura esperados. Demonstrando que uma parte considerável do texto
-gerado não está relacionado com o texto de referência. O \textit{recall} medido com \ac{ROUGE} é levemente maior,
-indicando que certas partes do texto esperado aparecem no texto gerado. Por fim, o valor da métrica \ac{METEOR}, que
+gerado não está relacionado com o texto de referência. O \textit{recall} medido com \ac{rouge} é levemente maior,
+indicando que certas partes do texto esperado aparecem no texto gerado. Por fim, o valor da métrica \ac{meteor}, que
 correlaciona-se melhor com a interpretação humana, sugere que o texto gerado possui uma menor qualidade e está distante
 do esperado.
 
 \begin{table}[ht]
-    \caption{\small Métricas de \ac{PLN} do texto das respostas geradas pelo \ac{LLaMA}-3.2-11B.}
     \centering
     \begin{tabular}{l|c|c}
         \hline
         Métrica                        & Valor (Modelo quantizado) & Valor (Modelo não quantizado) \\ \hline
-        \ac{BLEU}-1                    & 0,181                     & 0,192                         \\
-        \ac{BLEU}-2                    & 0,125                     & 0,129                         \\
-        \ac{BLEU}-3                    & 0,099                     & 0,102                         \\
-        \ac{BLEU}-4                    & 0,081                     & 0,083                         \\ \hline
-        \ac{ROUGE}-1 (\textit{recall}) & 0,422                     & 0,417                         \\
-        \ac{ROUGE}-L (\textit{recall}) & 0,330                     & 0,313                         \\ \hline
-        \ac{METEOR}                    & 0,211                     & 0,221                         \\ \hline
+        \ac{bleu}-1                    & 0,181                     & 0,192                         \\
+        \ac{bleu}-2                    & 0,125                     & 0,129                         \\
+        \ac{bleu}-3                    & 0,099                     & 0,102                         \\
+        \ac{bleu}-4                    & 0,081                     & 0,083                         \\ \hline
+        \ac{rouge}-1 (\textit{recall}) & 0,422                     & 0,417                         \\
+        \ac{rouge}-L (\textit{recall}) & 0,330                     & 0,313                         \\ \hline
+        \ac{meteor}                    & 0,211                     & 0,221                         \\ \hline
     \end{tabular}
     \label{tab:llama_nlp_metrics}
-    \fonte{Autoria própria}
+    \caption{Métricas de \ac{pln} do texto das respostas geradas pelo \ac{llama}-3.2-11B. Fonte: Autoria própria.}
 \end{table}
 
 \subsubsection{Análise do Modelo Treinado com QLoRA}
 
-O modelo treinado com \ac{QLoRA} respondeu a todas as perguntas de forma válida e atingiu uma acurácia de 45,2\% na
+O modelo treinado com \ac{qlora} respondeu a todas as perguntas de forma válida e atingiu uma acurácia de 45,2\% na
 classificação de lesões de pele com as perguntas do conjunto de teste, ultrapassando o modelo base não quantizado
 em 28,2\%. A \autoref{fig:confusion_matrix_lladerm_qlora_final_skin_lesions} apresenta a matriz de confusão da
 classificação das lesões de pele. Observa-se que o modelo capturou razoavelmente o padrão de classificação, mas seu
@@ -1208,24 +1163,23 @@ referente aos testes sobre o conjunto de treinamento pode ser conferida na
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação das lesões de pele sobre o conjunto de teste para o
-    \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA}. A legenda das lesões está na \autoref{tab:skin_lesion_classes_legend}.}
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_qlora_final_skin_lesions.png}
     \label{fig:confusion_matrix_lladerm_qlora_final_skin_lesions}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação das lesões de pele sobre o conjunto de teste para o
+    \ac{llama}-3.2-11B treinado com \ac{qlora}. A legenda das lesões está na \autoref{tab:skin_lesion_classes_legend}.
+    Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação das lesões de pele sobre o conjunto de treinamento para o
-    \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA}. A classe ``I'' denota as respostas inválidas. A legenda das lesões está
-    na \autoref{tab:skin_lesion_classes_legend}.}
 
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_qlora_final_skin_lesions_training.png}
     \label{fig:confusion_matrix_lladerm_qlora_final_skin_lesions_training}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação das lesões de pele sobre o conjunto de treinamento para o
+    \ac{llama}-3.2-11B treinado com \ac{qlora}. A classe ``I'' denota as respostas inválidas. A legenda das lesões está
+    na \autoref{tab:skin_lesion_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 A \autoref{tab:lladerm_qlora_skin_lesion_classification_report} apresenta as métricas de classificação para as classes.
@@ -1237,8 +1191,6 @@ aprendeu efetivamente os padrões de classificação, caracterizando um possíve
 \clearpage
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação das lesões de pele sobre os conjuntos de teste e treinamento com o
-    \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA}.}
     \centering
     \begin{tabular}{l|c|c|c|c|c|c}
         \hline
@@ -1320,43 +1272,43 @@ aprendeu efetivamente os padrões de classificação, caracterizando um possíve
         \hline
     \end{tabular}
     \label{tab:lladerm_qlora_skin_lesion_classification_report}
-    \fonte{Autoria própria}
+    \caption{Métricas da classificação das lesões de pele sobre os conjuntos de teste e treinamento com o
+    \ac{llama}-3.2-11B treinado com \ac{qlora}. Fonte: Autoria própria.}
 \end{table}
+
+\clearpage
 
 A acurácia da classificação de risco foi de 54,6\%, 27,4\% maior do que a acurácia obtida pelo modelo base não
 quantizado. O testes sobre o conjunto de treinamento apresentaram uma acurácia de 64,3\%. Assim como na classificação
 de lesões, o desempenho nesta tarefa foi considerado insatisfatório, porém, um pouco melhor. A
 \autoref{fig:confusion_matrix_lladerm_qlora_final_risk} e
 \autoref{fig:confusion_matrix_lladerm_qlora_final_risk_training} apresentam as matrizes de confusão, onde observa-se
-que o modelo treinado com \ac{QLoRA} foi capaz de capturar o padrão de classificação de risco razoavelmente. Na
+que o modelo treinado com \ac{qlora} foi capaz de capturar o padrão de classificação de risco razoavelmente. Na
 \autoref{tab:lladerm_qlora_risk_classification_report}, pode-se ver que o desempenho na classificação é similar entre
 as classes, sendo levemente maior para as classes mais frequentes.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação de risco sobre o conjunto de teste para o \ac{LLaMA}-3.2-11B
-    treinado com \ac{QLoRA}. A legenda das classificações está na \autoref{tab:risk_classes_legend}.}
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_qlora_final_risk.png}
     \label{fig:confusion_matrix_lladerm_qlora_final_risk}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação de risco sobre o conjunto de teste para o \ac{llama}-3.2-11B
+    treinado com \ac{qlora}. A legenda das classificações está na \autoref{tab:risk_classes_legend}. Fonte: Autoria
+    própria.}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação de risco sobre o conjunto de treinamento para o
-    \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA}. A classe ``I'' denota as respostas inválidas. A legenda das
-    classificações está na \autoref{tab:risk_classes_legend}.}
 
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_qlora_final_risk_training.png}
     \label{fig:confusion_matrix_lladerm_qlora_final_risk_training}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação de risco sobre o conjunto de treinamento para o
+    \ac{llama}-3.2-11B treinado com \ac{qlora}. A classe ``I'' denota as respostas inválidas. A legenda das
+    classificações está na \autoref{tab:risk_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação de risco sobre os conjuntos de teste e treinamento com o
-    \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA}.}
     \centering
     \begin{tabular}{l|c|c|c|c|c|c}
         \hline
@@ -1385,43 +1337,43 @@ as classes, sendo levemente maior para as classes mais frequentes.
         \\ \hline
     \end{tabular}
     \label{tab:lladerm_qlora_risk_classification_report}
-    \fonte{Autoria própria}
+    \caption{Métricas da classificação de risco sobre os conjuntos de teste e treinamento com o
+    \ac{llama}-3.2-11B treinado com \ac{qlora}. Fonte: Autoria própria.}
 \end{table}
 
-As métricas de \ac{PLN} apresentadas na \autoref{tab:lladerm_qlora_nlp_metrics} demonstram que o \ac{LLaMA}-3.2-11B
-treinado com \ac{QLoRA} atingiu um desempenho suficientemente adequado na geração de textos de conclusão sobre as
-lesões. O \ac{BLEU}-1 acumulado indica que 55,1\% das palavras no texto gerado estão presentes também no texto do
-conjunto de teste, indicando que o modelo utiliza o vocabulário esperado. O restante dos valores de \ac{BLEU} com
-múltiplos n-gramas constata a capacidade do modelo de gerar texto com uma precisão aceitável. O \ac{ROUGE}-1 também
-demonstra que 67,8\% das palavras do texto do conjunto de teste aparecem no texto gerado, além disso, o \ac{ROUGE}-L
+As métricas de \ac{pln} apresentadas na \autoref{tab:lladerm_qlora_nlp_metrics} demonstram que o \ac{llama}-3.2-11B
+treinado com \ac{qlora} atingiu um desempenho suficientemente adequado na geração de textos de conclusão sobre as
+lesões. O \ac{bleu}-1 acumulado indica que 55,1\% das palavras no texto gerado estão presentes também no texto do
+conjunto de teste, indicando que o modelo utiliza o vocabulário esperado. O restante dos valores de \ac{bleu} com
+múltiplos n-gramas constata a capacidade do modelo de gerar texto com uma precisão aceitável. O \ac{rouge}-1 também
+demonstra que 67,8\% das palavras do texto do conjunto de teste aparecem no texto gerado, além disso, o \ac{rouge}-L
 confirma que a estrutura do texto de referência é seguida no texto gerado de forma aceitável. Por fim, o valor de
-\ac{METEOR} indica uma qualidade geral adequada.
+\ac{meteor} indica uma qualidade geral adequada.
 
 \begin{table}[ht]
-    \caption{\small Métricas de \ac{PLN} do texto das respostas geradas sobre os conjuntos de teste e treinamento pelo
-    modelo treinado com \ac{QLoRA}.}
     \centering
     \begin{tabular}{l|c|c}
         \hline
         Métrica                        & Valor (conjunto de teste) & Valor (conjunto de treinamento) \\ \hline
-        \ac{BLEU}-1                    & 0,551                     & 0,640                           \\
-        \ac{BLEU}-2                    & 0,524                     & 0,616                           \\
-        \ac{BLEU}-3                    & 0,511                     & 0,605                           \\
-        \ac{BLEU}-4                    & 0,500                     & 0,595                           \\
+        \ac{bleu}-1                    & 0,551                     & 0,640                           \\
+        \ac{bleu}-2                    & 0,524                     & 0,616                           \\
+        \ac{bleu}-3                    & 0,511                     & 0,605                           \\
+        \ac{bleu}-4                    & 0,500                     & 0,595                           \\
         \hline
-        \ac{ROUGE}-1 (\textit{recall}) & 0,678                     & 0,742                           \\
-        \ac{ROUGE}-L (\textit{recall}) & 0,629                     & 0,704                           \\
+        \ac{rouge}-1 (\textit{recall}) & 0,678                     & 0,742                           \\
+        \ac{rouge}-L (\textit{recall}) & 0,629                     & 0,704                           \\
         \hline
-        \ac{METEOR}                    & 0,580                     & 0,663                           \\
+        \ac{meteor}                    & 0,580                     & 0,663                           \\
         \hline
     \end{tabular}
     \label{tab:lladerm_qlora_nlp_metrics}
-    \fonte{Autoria própria}
+    \caption{Métricas de \ac{pln} do texto das respostas geradas sobre os conjuntos de teste e treinamento pelo
+    modelo treinado com \ac{qlora}. Fonte: Autoria própria.}
 \end{table}
 
 \subsubsection{Análise do Modelo Treinado com LoRA}
 
-O \ac{LLaMA}-3.2-11B treinado com \ac{LoRA} seguiu com resultados similares ao do modelo treinado com \ac{QLoRA}. Nos
+O \ac{llama}-3.2-11B treinado com \ac{lora} seguiu com resultados similares ao do modelo treinado com \ac{qlora}. Nos
 testes realizados sobre o conjunto de teste, a maioria das respostas foi válida, com a exceção de apenas uma. A
 resposta inválida classificou uma lesão como ``Nevo intradérmico'', sendo que esta lesão não está no domínio de
 classificação. Para os testes sobre o conjunto de treinamento, apenas uma resposta inválida foi gerada. Esta
@@ -1429,33 +1381,31 @@ resposta classificou a lesão da pergunta como ``Verruga Viral'', que embora sej
 Virais'', não é considerada válida nesta análise.
 
 A acurácia na classificação de lesões de pele com o conjunto de testes foi de 44,5\%, 0,7\% menor do que a atingida
-pelo modelo treinado com \ac{QLoRA}. Com os testes sobre o conjunto de treinamento, a acurácia foi de 59\%,
-ultrapassando o modelo treinado com \ac{QLoRA} em 3,9\%. As matrizes de confusão na
+pelo modelo treinado com \ac{qlora}. Com os testes sobre o conjunto de treinamento, a acurácia foi de 59\%,
+ultrapassando o modelo treinado com \ac{qlora} em 3,9\%. As matrizes de confusão na
 \autoref{fig:confusion_matrix_lladerm_lora_final_skin_lesions} e
 \autoref{fig:confusion_matrix_lladerm_lora_final_skin_lesions_training} apresentam padrões de classificação
-extremamente similares aos padrões do modelo treinado com \ac{QLoRA}.
+extremamente similares aos padrões do modelo treinado com \ac{qlora}.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação das lesões de pele sobre o conjunto de teste para o
-    \ac{LLaMA}-3.2-11B treinado com \ac{LoRA}. A classe ``I'' denota as respostas inválidas. A legenda das lesões está
-    na \autoref{tab:skin_lesion_classes_legend}.}
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_lora_final_skin_lesions.png}
     \label{fig:confusion_matrix_lladerm_lora_final_skin_lesions}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação das lesões de pele sobre o conjunto de teste para o
+    \ac{llama}-3.2-11B treinado com \ac{lora}. A classe ``I'' denota as respostas inválidas. A legenda das lesões está
+    na \autoref{tab:skin_lesion_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação das lesões de pele sobre o conjunto de treinamento para o
-    \ac{LLaMA}-3.2-11B treinado com \ac{LoRA}. A classe ``I'' denota as respostas inválidas. A legenda das lesões está
-    na \autoref{tab:skin_lesion_classes_legend}.}
 
     \includegraphics[width=1\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_lora_final_skin_lesions_training.png}
     \label{fig:confusion_matrix_lladerm_lora_final_skin_lesions_training}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação das lesões de pele sobre o conjunto de treinamento para o
+    \ac{llama}-3.2-11B treinado com \ac{lora}. A classe ``I'' denota as respostas inválidas. A legenda das lesões está
+    na \autoref{tab:skin_lesion_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 As métricas de classificação apresentadas na \autoref{tab:lladerm_lora_skin_lesion_classification_report} não
@@ -1466,8 +1416,6 @@ da classificação das lesões da seção anterior, este baixo desempenho em amb
 \clearpage
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação das lesões de pele sobre os conjuntos de teste e treinamento com o
-    \ac{LLaMA}-3.2-11B treinado com \ac{LoRA}.}
     \centering
     \begin{tabular}{l|c|c|c|c|c|c}
         \hline
@@ -1549,43 +1497,42 @@ da classificação das lesões da seção anterior, este baixo desempenho em amb
         \hline
     \end{tabular}
     \label{tab:lladerm_lora_skin_lesion_classification_report}
-    \fonte{Autoria própria}
+    \caption{Métricas da classificação das lesões de pele sobre os conjuntos de teste e treinamento com o
+    \ac{llama}-3.2-11B treinado com \ac{lora}. Fonte: Autoria própria.}
 \end{table}
 
+\clearpage
+
 A acurácia na classificação de risco com as perguntas do conjunto de teste foi de 55,1\%, superando o modelo treinado
-com \ac{QLoRA} em apenas 0,5\%. Sobre as perguntas do conjunto de treinamento, a acurácia foi de 66,7\%, ultrapassando
-o \ac{LLaMA}-3.2-11B treinado com \ac{QLoRA} em 2,4\%. As matrizes de confusão podem ser conferidas na
+com \ac{qlora} em apenas 0,5\%. Sobre as perguntas do conjunto de treinamento, a acurácia foi de 66,7\%, ultrapassando
+o \ac{llama}-3.2-11B treinado com \ac{qlora} em 2,4\%. As matrizes de confusão podem ser conferidas na
 \autoref{fig:confusion_matrix_lladerm_lora_final_risk} e
 \autoref{fig:confusion_matrix_lladerm_lora_final_risk_training}. Além disso, os dados da
-\autoref{tab:lladerm_lora_risk_classification_report} demonstram que o modelo treinado com \ac{LoRA} possui um
+\autoref{tab:lladerm_lora_risk_classification_report} demonstram que o modelo treinado com \ac{lora} possui um
 desempenho levemente maior na classificação de categorias de risco, porém, as métricas ainda são similares.
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação de risco sobre o conjunto de teste para o \ac{LLaMA}-3.2-11B
-    treinado com \ac{LoRA}. A classe ``I'' denota as respostas inválidas. A legenda das classificações está na
-    \autoref{tab:risk_classes_legend}.}
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_lora_final_risk.png}
     \label{fig:confusion_matrix_lladerm_lora_final_risk}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação de risco sobre o conjunto de teste para o \ac{llama}-3.2-11B
+    treinado com \ac{lora}. A classe ``I'' denota as respostas inválidas. A legenda das classificações está na
+    \autoref{tab:risk_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \clearpage
 
 \begin{figure}[ht]
     \centering
-    \caption{\small Matriz de confusão da classificação de risco sobre o conjunto de treinamento para o
-    \ac{LLaMA}-3.2-11B treinado com \ac{LoRA}. A classe ``I'' denota as respostas inválidas. A legenda das
-    classificações está na \autoref{tab:risk_classes_legend}.}
-    
+
     \includegraphics[width=0.625\columnwidth,keepaspectratio]{images/confusion_matrix_lladerm_lora_final_risk_training.png}
     \label{fig:confusion_matrix_lladerm_lora_final_risk_training}
-    \fonte{Autoria própria.}
+    \caption{Matriz de confusão da classificação de risco sobre o conjunto de treinamento para o
+    \ac{llama}-3.2-11B treinado com \ac{lora}. A classe ``I'' denota as respostas inválidas. A legenda das
+    classificações está na \autoref{tab:risk_classes_legend}. Fonte: Autoria própria.}
 \end{figure}
 
 \begin{table}[ht]
-    \caption{\small Métricas da classificação de risco sobre os conjuntos de teste e treinamento com o
-    \ac{LLaMA}-3.2-11B treinado com \ac{LoRA}.}
     \centering
     \begin{tabular}{l|c|c|c|c|c|c}
         \hline
@@ -1610,30 +1557,32 @@ desempenho levemente maior na classificação de categorias de risco, porém, as
         \\ \hline
     \end{tabular}
     \label{tab:lladerm_lora_risk_classification_report}
-    \fonte{Autoria própria}
+    \caption{Métricas da classificação de risco sobre os conjuntos de teste e treinamento com o
+    \ac{llama}-3.2-11B treinado com \ac{lora}. Fonte: Autoria própria.}
 \end{table}
 
-O desempenho nas métricas de \ac{PLN} do modelo treinado com \ac{LoRA} demonstram que este modelo é levemente pior na
-geração de texto do que a versão treinada com \ac{QLoRA}.
+O desempenho nas métricas de \ac{pln} do modelo treinado com \ac{lora} demonstram que este modelo é levemente pior na
+geração de texto do que a versão treinada com \ac{qlora}.
+
+\clearpage
 
 \begin{table}[ht]
-    \caption{\small Métricas de \ac{PLN} do texto das respostas geradas sobre os conjuntos de teste e treinamento pelo
-    modelo treinado com \ac{LoRA}.}
     \centering
     \begin{tabular}{l|c|c}
         \hline
         Métrica                        & Valor (conjunto de teste) & Valor (conjunto de treinamento) \\ \hline
-        \ac{BLEU}-1                    & 0,545                     & 0,660                           \\
-        \ac{BLEU}-2                    & 0,517                     & 0,639                           \\
-        \ac{BLEU}-3                    & 0,504                     & 0,628                           \\
-        \ac{BLEU}-4                    & 0,493                     & 0,619                           \\
+        \ac{bleu}-1                    & 0,545                     & 0,660                           \\
+        \ac{bleu}-2                    & 0,517                     & 0,639                           \\
+        \ac{bleu}-3                    & 0,504                     & 0,628                           \\
+        \ac{bleu}-4                    & 0,493                     & 0,619                           \\
         \hline
-        \ac{ROUGE}-1 (\textit{recall}) & 0,677                     & 0,760                           \\
-        \ac{ROUGE}-L (\textit{recall}) & 0,627                     & 0,724                           \\
+        \ac{rouge}-1 (\textit{recall}) & 0,677                     & 0,760                           \\
+        \ac{rouge}-L (\textit{recall}) & 0,627                     & 0,724                           \\
         \hline
-        \ac{METEOR}                    & 0,576                     & 0,684                           \\
+        \ac{meteor}                    & 0,576                     & 0,684                           \\
         \hline
     \end{tabular}
     \label{tab:lladerm_lora_nlp_metrics}
-    \fonte{Autoria própria}
+    \caption{Métricas de \ac{pln} do texto das respostas geradas sobre os conjuntos de teste e treinamento pelo
+    modelo treinado com \ac{lora}. Fonte: Autoria própria.}
 \end{table}

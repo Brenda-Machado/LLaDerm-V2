@@ -1,19 +1,19 @@
-\chapter{Conclusão}
+\section{Conclusão}
 
-Neste trabalho, foi realizado o \textit{fine-tuning} do \ac{MLLM} \ac{LLaMA}-3.2-11B com as técnicas de treinamento
-\ac{QLoRA} e \ac{LoRA}. Os modelos provenientes do \textit{fine-tuning} nas duas etapas de desenvolvimento foram
+Neste trabalho, foi realizado o \textit{fine-tuning} do \ac{mllm} \ac{llama}-3.2-11B com as técnicas de treinamento
+\ac{qlora} e \ac{lora}. Os modelos provenientes do \textit{fine-tuning} nas duas etapas de desenvolvimento foram
 analisados e comparados com o modelo base e também entre si, oferecendo informações relevantes sobre o impacto dos
 diferentes métodos de treinamento.
 
-Os resultados apresentados constataram que o \textit{fine-tuning} do modelo \ac{LLaMA}-3.2-11B pode ser feito de forma
-eficiente através do treinamento com \ac{QLoRA}. Os modelos treinados com este método obtiveram um desempenho
-semelhante ao dos modelos treinados com \ac{LoRA} e requisitaram menos memória durante o treinamento.
+Os resultados apresentados constataram que o \textit{fine-tuning} do modelo \ac{llama}-3.2-11B pode ser feito de forma
+eficiente através do treinamento com \ac{qlora}. Os modelos treinados com este método obtiveram um desempenho
+semelhante ao dos modelos treinados com \ac{lora} e requisitaram menos memória durante o treinamento.
 
 Na etapa inicial, os resultados obtidos foram satisfatórios e demonstraram que através do \textit{fine-tuning} com
-\ac{QLoRA} com 5000 amostras do conjunto de dados é possível atingir uma acurácia na classificação
-de lesões de pele de 85,4\%, o que é próximo da acurácia de 86,2\% obtida com o \ac{LoRA} para o mesmo volume de dados.
+\ac{qlora} com 5000 amostras do conjunto de dados é possível atingir uma acurácia na classificação
+de lesões de pele de 85,4\%, o que é próximo da acurácia de 86,2\% obtida com o \ac{lora} para o mesmo volume de dados.
 Porém, os resultados da etapa final foram poucos satisfatórios quanto ao critério de classificação de lesões, atingindo
-apenas 45,2\% de acurácia após o treinamento com \ac{QLoRA}. Embora o volume de dados utilizado nesta etapa tenha sido
+apenas 45,2\% de acurácia após o treinamento com \ac{qlora}. Embora o volume de dados utilizado nesta etapa tenha sido
 similar, com um total de 4736 pares de imagem e texto de resposta, o conteúdo em si das imagens e do texto eram
 consideravelmente diferentes. As imagens de aproximação utilizadas possuem uma complexidade visual muito maior, pois
 elas incluem elementos extras além da lesão de pele, como o resto do ambiente ao redor do local da lesão. Além disso,
@@ -35,13 +35,13 @@ foram identificados, como erros ortográficos e formatações não ideais. Essas
 inconsistências e erros no conjunto de dados.
 
 Por fim, os resultados dos testes na segunda etapa sobre o conjunto de treinamento evidenciaram que o
-\ac{LLaMA}-3.2-11B após o \textit{fine-tuning} não foi capaz de capturar o padrão de classificação de lesões de pele,
+\ac{llama}-3.2-11B após o \textit{fine-tuning} não foi capaz de capturar o padrão de classificação de lesões de pele,
 o que indica que para este tipo de tarefa, um conjunto de dados limpo e bem estruturado é necessário.
 
 Em geral, considera-se necessária a adaptação e expansão do conjunto de dados para que o desenvolvimento de um novo
 modelo com um maior desempenho seja possível.
 
-\section{Trabalhos Futuros}
+\subsection{Trabalhos Futuros}
 
 Considerando os resultados e limitações constatadas neste projeto, propõe-se a construção de um novo conjunto de dados
 com um maior volume e consistência entre as classes. Seria necessário incluir também uma nova classe referente a casos
@@ -51,7 +51,7 @@ desconsiderando a possibilidade da ausência de lesões.
 Recomenda-se também a otimização aprofundada dos hiperparâmetros de treinamento, possivelmente com técnicas de busca em
 grade e ferramentas como W\&B Sweeps e Optuna \cite{wab_sweeps, optuna_2019}.
 
-A utilização de outros \acp{MLLM} também é recomendada, particularmente a do Gemma 3 de \textcite{team2025gemma}. Isso
+A utilização de outros \acp{mllm} também é recomendada, particularmente a do Gemma 3 de \textcite{team2025gemma}. Isso
 tornaria possível a realização de uma comparação mais avançada entre os diferentes modelos.
 
 Por fim, sugere-se a utilização de avaliações manuais sobre partes dos resultados dos testes. Atualmente, os resultados
