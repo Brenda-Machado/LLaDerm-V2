@@ -1,0 +1,15 @@
+\section{Metodologia de Desenvolvimento}
+
+O experimentos foram realizados em duas etapas, sendo que as ferramentas utilizadas em cada etapa foram as mesmas. Os
+\textit{scripts} foram implementados com Python 3.10 e \textit{Jupyter Notebooks}. Os treinamentos foram realizados com
+a plataforma NVIDIA DGX H100, fazendo o uso de apenas uma placa NVIDIA H100 e 80 GB de memória.
+
+Na primeira etapa o conjunto de dados de imagens de dermatoscopia \ac{ham10000} foi utilizado, contendo 13354 imagens.
+Foram feitos treinamentos com 450, 900 e 5000 amostras com os métodos \ac{qlora} e \ac{lora}. O \textit{fine-tuning}
+foi aplicado com um modelo conversacional em que um \textit{prompt} de pergunta sobre a imagem de uma lesão é fornecido
+ao modelo, assim, o modelo responde informando a lesão de pele em questão.
+
+A segunda etapa se consistiu do \textit{fine-tuning} com o conjunto de dados proveniente do \ac{sttsc}. Os dados foram
+tratados e 4736 pares de imagem e texto foram selecionadas para o treinamento, enquanto 1167 pares foram selecionados
+para o teste. Foi realizado o treinamento com \ac{qlora} e \ac{lora} para classificação de lesões de pele,
+classificação de categorias de risco e geração de laudos.

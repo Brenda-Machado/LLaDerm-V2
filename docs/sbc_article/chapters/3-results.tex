@@ -1,0 +1,230 @@
+\section{Resultados e Discussão}
+
+Nesta seção serão apresentados os resultados e será realizada uma análise comparativa dos modelos resultantes do
+\textit{fine-tuning} realizado nas duas etapas de desenvolvimento. Além disso serão feitas comparações com o modelo
+base e entre os métodos de treinamento.
+
+\subsection{Desempenho na Classificação de Lesões de Pele}
+
+A \autoref{tab:overall_comparison_skin_lesions} apresenta uma comparação entre todos os testes realizados.
+
+\clearpage
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|l|c|c}
+        \hline
+        Tipo de imagem                  & Método de \textit{fine-tuning} & Volume de treinamento & Acurácia (\%) \\
+        \hline
+        \multirow{10}{*}{Dermatoscopia} & Nenhum (Quantizado)            & -                     & 11,8          \\
+                                        & Nenhum                         & -                     & 14,0          \\
+        \cline{2--2}
+                                        & \multirow{3}{*}{\ac{qlora}}    & 450                   & 65,5          \\
+                                        &                                & 900                   & 65,2          \\
+                                        &                                & 5000                  & 85,4          \\
+        \cline{2--2}
+                                        & \multirow{3}{*}{\ac{lora}}     & 450                   & 49,5          \\
+                                        &                                & 900                   & 42,0          \\
+                                        &                                & 5000                  & \textbf{86,2} \\
+        \hline
+        \multirow{4}{*}{Aproximação}    & Nenhum (Quantizado)            & -                     & 14,8          \\
+                                        & Nenhum                         & -                     & 17,0          \\
+        \cline{2--2}
+                                        & \ac{qlora}                     & 4736                  & \textbf{45,2} \\
+        \cline{2--2}
+                                        & \ac{lora}                      & 4736                  & 44,5          \\
+        \hline
+    \end{tabular}
+    \label{tab:overall_comparison_skin_lesions}
+    \caption{Acurácia na classificação de lesões de pele nos testes realizados. Os valores em
+    negrito indicam as maiores acurácias para o tipo de imagem especificado. Fonte: Autoria própria.}
+\end{table}
+
+Os resultados obtidos na etapa final de desenvolvimento indicam que os modelos que passaram pelo \textit{fine-tuning}
+para a classificação de lesões de pele com imagens de aproximação obtiveram um desempenho mediano, ficando abaixo do
+esperado. Em comparação com os modelos da primeira etapa, treinados para a classificação com imagens de dermatoscopia,
+a acurácia foi consideravelmente menor.
+
+Os modelos da primeira etapa obtiveram um desempenho superior com um quantidade muito menor de dados, comparativamente,
+o modelo treinado com \ac{qlora} e 5000 imagens de dermatoscopia superou o modelo treinado com \ac{qlora} e 4736
+imagens de aproximação em 42,2\%. Embora existam diferenças nos hiperparâmetros de treinamento desses modelos, a
+divergência é significativa demais para estar relacionada apenas com os hiperparâmetros.
+
+\subsection{Desempenho na Classificação de Risco}
+
+A classificação de risco introduzida na etapa final do trabalho apresentou um cenário mais promissor no desempenho,
+porém a acurácia ainda foi mediana e pouco satisfatória. A \autoref{tab:overall_comparison_risk} apresenta uma visão
+comparativa da acurácia na classificação das categorias de risco, evidenciando as melhorias no desempenho
+proporcionadas pelo \textit{fine-tuning}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|c}
+        \hline
+        Método de \textit{fine-tuning} & Acurácia (\%) \\ \hline
+        Nenhum (Quantizado)            & 23,4          \\
+        Nenhum                         & 27,4          \\
+        \ac{qlora}                     & 54,6          \\
+        \ac{lora}                      & \textbf{55,1} \\ \hline
+    \end{tabular}
+    \label{tab:overall_comparison_risk}
+    \caption{Acurácia na classificação de risco para os testes da etapa final de desenvolvimento. O valor em
+    negrito indica a maior acurácia. Fonte: Autoria própria.}
+\end{table}
+
+\subsection{Desempenho na Geração de Laudos}
+
+O desempenho na geração de texto foi considerado satisfatório, conforme pode ser viso na
+\autoref{tab:overall_nlp_metrics}, tanto o modelo treinado com o \ac{qlora} quanto o com \ac{lora} atingiram um
+desempenho superior ao do modelo base, constatando que os modelos conseguiram generalizar o formato de geração do texto
+do laudo. Nas métricas \ac{bleu} e \ac{meteor} foi observado o maior ganho de desempenho em relação ao modelo base,
+enquanto na métrica \ac{rouge} o ganho de desempenho foi menor.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|c|c|c|c}
+        \hline
+                                       & \multicolumn{4}{c}{Método de \textit{fine-tuning}}
+        \\ \hline
+        Métrica                        & Nenhum (Quantizado)
+                                       & Nenhum                                             & \ac{qlora}
+                                       & \ac{lora}
+        \\ \hline
+        \ac{bleu}-1                    & 0,181                                              & 0,192      &
+        \textbf{0,551}
+                                       & 0,545
+        \\
+        \ac{bleu}-2                    & 0,125                                              & 0,129      &
+        \textbf{0,524}
+                                       & 0,517
+        \\
+        \ac{bleu}-3                    & 0,099                                              & 0,102      &
+        \textbf{0,511}
+                                       & 0,504
+        \\
+        \ac{bleu}-4                    & 0,081                                              & 0,083      &
+        \textbf{0,500}
+                                       & 0,493
+        \\
+        \hline
+        \ac{rouge}-1 (\textit{recall}) & 0,422                                              & 0,417      &
+        \textbf{0,678}
+                                       & 0,677
+        \\
+        \ac{rouge}-L (\textit{recall}) & 0,330                                              & 0,313      &
+        \textbf{0,629}
+                                       & 0,627
+        \\
+        \hline
+        \ac{meteor}                    & 0,211                                              & 0,221      &
+        \textbf{0,580}
+                                       & 0,576
+        \\
+        \hline
+    \end{tabular}
+    \label{tab:overall_nlp_metrics}
+    \caption{Métricas de \ac{pln} do texto das respostas geradas sobre os testes na etapa final de
+    desenvolvimento. Os maiores valores de cada métrica estão destacados em negrito. Fonte: Autoria própria.}
+\end{table}
+
+A fim de realizar uma análise aprofundada da geração de texto, as respostas abaixo foram coletadas dos resultados dos
+testes. Primeiramente, o texto de referência é apresentado:
+
+\begin{dialogue}
+    \speak{Modelo} Classificação: Câncer de pele Não Melanoma (CEC ou CBC). \\
+    Classificação de risco: AMARELA - ENCAMINHAMENTO COM PRIORIDADE PARA O AMBULATÓRIO DE REFERÊNCIA TERCIÁRIO. \\
+    Conclusão sobre a lesão: compatível com câncer da pele. \\
+    Conclusão: Encaminhar o paciente para o ambulatório de Dermatologia - CÂNCER DA PELE/Cirurgia Dermatológica ou
+    referência regional. \\ \\
+    Se o paciente já realizou biópsia da lesão, o resultado deve ser levado no dia da cirurgia.
+\end{dialogue}
+
+As duas respostas abaixo foram geradas pelo \ac{llama}-3.2-11B quantizado e não quantizado, respectivamente. Os modelos
+classificaram corretamente a lesão de pele, mas apenas a versão quantizada categorizou o risco de forma correta. Além
+disso, as conclusões não apresentaram as recomendações ideais.
+
+\begin{dialogue}
+    \speak{Modelo} Classificação: Câncer de pele Não Melanoma (CEC ou CBC). \\
+    Classificação de risco: AMARELA - ENCAMINHAMENTO COM PRIORIDADE PARA O AMBULATÓRIO DE REFERÊNCIA TERCIÁRIO. \\
+    Conclusão sobre a lesão: A lesão apresentada na imagem é caracterizada por uma lesão de pele com aspecto ulcerado e
+    com bordas irregulares, o que sugere uma lesão maligna. A classificação de risco como amarela indica que a lesão
+    requer
+    acompanhamento e tratamento em um ambulatório de referência terciário. \\
+    Conclusão: A lesão apresentada na imagem é suspeita de câncer de pele não melanoma e requer acompanhamento e
+    tratamento em um ambulatório de referência terciário.
+\end{dialogue}
+
+\begin{dialogue}
+    \speak{Modelo} Classificação: Câncer de pele Não Melanoma (CEC ou CBC). \\
+    Classificação de risco: BRANCA - SEM NECESSIDADE DE INTERVENÇÃO OU ACOMPANHAMENTO. \\
+    Conclusão sobre a lesão: A lesão apresentada na imagem é caracterizada por uma lesão de pele com uma borda
+    irregular e um centro escuro, o que sugere uma lesão maligna. A presença de uma lesão de pele com essas
+    características
+    é compatível com um Câncer de pele Não Melanoma (CEC ou CBC). \\
+    Conclusão: A lesão apresentada na imagem é compatível com um Câncer de pele Não Melanoma (CEC ou CBC) e deve ser
+    avaliada por um especialista em dermatologia.
+\end{dialogue}
+
+As respostas seguintes foram geradas com o \ac{llama}-3.2-11B treinado com \ac{qlora} e \ac{lora}, respectivamente.
+Ambos classificaram as lesões e as categorias de risco corretamente. As conclusões geradas seguem o texto de referência
+com precisão, mas apresentam a palavra ``compatível'' com a grafia incorreta, omitindo o acento agudo. O texto gerado
+também inclui um espaçamento inesperado.
+
+\begin{dialogue}
+    \speak{Modelo} Classificação: Câncer de pele Não Melanoma (CEC ou CBC). \\
+    Classificação de risco: AMARELA - ENCAMINHAMENTO COM PRIORIDADE PARA O AMBULATÓRIO DE REFERÊNCIA TERCIÁRIO. \\
+    Conclusão sobre a lesão: compativel com câncer da pele. \\
+    Conclusão: Encaminhar o paciente para o ambulatório de Dermatologia - CÂNCER DA PELE/Cirurgia Dermatológica ou
+    referência regional. \\ \\ \\ \\
+    Se o paciente já realizou biópsia da lesão, o resultado deve ser levado no dia da cirurgia.
+\end{dialogue}
+
+\begin{dialogue}
+    \speak{Modelo} Classificação: Câncer de pele Não Melanoma (CEC ou CBC). \\
+    Classificação de risco: AMARELA - ENCAMINHAMENTO COM PRIORIDADE PARA O AMBULATÓRIO DE REFERÊNCIA TERCIÁRIO. \\
+    Conclusão sobre a lesão: compativel com câncer da pele. \\
+    Conclusão: Encaminhar o paciente para o ambulatório de Dermatologia - CÂNCER DA PELE/Cirurgia Dermatológica ou
+    referência regional. \\ \\ \\ \\
+    Se o paciente já realizou biópsia da lesão, o resultado deve ser levado no dia da cirurgia.
+\end{dialogue}
+
+\subsection{Comparação entre as Técnicas de Treinamento}
+
+Por fim, comparando as métricas de treinamento apresentadas na \autoref{fig:trainig_time}, \autoref{fig:used_memory} e
+\autoref{tab:final_training_metrics}, observa-se que ambos os métodos de treinamento tomam uma quantidade similar de
+tempo para serem concluídos. O tempo de treinamento também tende a escalar na mesma taxa para ambos os métodos, mesmo
+com diferentes volumes de dados. Ademais, o método \ac{lora} tente a utilizar uma quantidade maior de memória, com um
+uso médio de 84,19\% a mais de memória em relação ao \ac{qlora} na etapa inicial. Na etapa final, o \ac{lora} utilizou
+25,94\% a mais de memória. A disparidade entre essas diferenças para as duas etapas pode ser explicada pelas alterações
+nos hiperparâmetros que afetam o uso da memória, como tamanho do lote por dispositivo e o passo de acumulação de
+gradiente. Além disso, é possível que as características dos conjunto de dados tenham influenciado nesta diferença.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\columnwidth,keepaspectratio]{images/training_time.png}
+    \label{fig:trainig_time}
+    \caption{Tempo de treinamento dos modelos da etapa inicial com diferentes técnicas de treinamento. Fonte: Autoria
+    própria.}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\columnwidth,keepaspectratio]{images/used_memory.png}
+    \label{fig:used_memory}
+    \caption{Memória utilizada no treinamento dos modelos da etapa inicial com diferentes técnicas de
+    treinamento. Fonte: Autoria própria.}
+\end{figure}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|c|c}
+        \hline
+        Método de treinamento & Tempo de treinamento (min) & Memória utilizada (GB) \\ \hline
+        \ac{qlora}            & 286,83                     & 47,57                  \\
+        \ac{lora}             & 276,46                     & 59,91                  \\ \hline
+    \end{tabular}
+    \label{tab:final_training_metrics}
+    \caption{Métricas de treinamento para a etapa final do projeto. Fonte: Autoria própria.}
+\end{table}

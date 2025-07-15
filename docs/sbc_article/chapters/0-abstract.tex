@@ -1,0 +1,17 @@
+\begin{resumo}
+    A detecção precoce de lesões de pele é crucial para o tratamento de doenças graves, como o câncer de pele, mas o
+    diagnóstico destas lesões requer um dermatologista. No Brasil, os \ac{acs} têm contato direto com a população,
+    porém não possuem a qualificação necessária para realizar a triagem de lesões de pele. Diante disso, uma ferramenta
+    que pudesse classificar essas lesões e fornecer pré-diagnósticos seria de grande auxílio. Neste contexto, os
+    \acp{mllm} se mostram promissores, pois possuem a capacidade de interpretar imagens e gerar dados textuais.
+
+    Este trabalho avaliou o uso do \ac{llama} 3.2 11B, para classificar lesões de pele e gerar laudos. Os experimentos
+    foram divididos em duas etapas, com o \textit{fine-tuning} sendo realizado em conjuntos de dados diferentes em cada
+    uma delas. Na primeira etapa, usando o conjunto de dados de dermatoscopia \ac{ham10000} apenas para classificação,
+    o modelo alcançou uma acurácia de 86,2\% com \ac{lora}. Enquanto na segunda etapa, que visava a classificação e a
+    geração de laudos com um conjunto de dados proveniente do \ac{sttsc}, o desempenho caiu significativamente, com o
+    modelo atingindo uma acurácia de 45,2\% com \ac{qlora} e 44,5\% com \ac{lora}. O baixo desempenho dos modelos
+    finais na classificação pode ser explicado por inconsistências no conjunto de dados.
+
+    \textbf{Palavras-chave}: Lesões de pele. Câncer de pele. MLLM. LLaMA. PEFT. Fine tuning. QLoRA. LoRA.
+\end{resumo}
