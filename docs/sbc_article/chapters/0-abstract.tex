@@ -15,24 +15,3 @@
 
     \textbf{Palavras-chave}: Lesões de pele. Câncer de pele. MLLM. LLaMA. PEFT. Fine tuning. QLoRA. LoRA.
 \end{resumo}
-
-\begin{abstract}
-    \begin{otherlanguage*}{english}
-        Early detection of skin lesions is crucial for treating serious diseases, such as skin cancer, but the
-        diagnosis of these lesions requires a dermatologist. In Brazil, \acf{acs} have direct contact with the
-        population, however, they do not have the necessary qualifications to perform skin lesion screenings.
-        Therefore, a tool that could classify these lesions and provide pre-diagnoses would be of great help.
-        In this context, \acfp{mllm} are promising, as they have the ability to interpret images and generate textual
-        data.
-
-        This work evaluated the use of the \acf{llama} 3.2 11B to classify skin lesions and generate reports. The
-        experiments were divided into two stages, with fine-tuning performed on different datasets in each. In the
-        first stage, using the \acf{ham10000} dermatoscopy dataset for classification only, the model achieved an
-        accuracy of 86.2\% with \acf{lora}. In the second stage, which aimed at classification and report generation
-        with a dataset from the \acf{sttsc}, the performance dropped significantly, with the model reaching an accuracy
-        of 45.2\% with \ac{qlora} and 44.5\% with \ac{lora}. The low classification performance of the final models can
-        be explained by inconsistencies in the dataset.
-
-        \textbf{Keywords}: Skin lesions. Skin cancer. MLLM. LLaMA. PEFT. Fine-tuning. QLoRA. LoRA.
-    \end{otherlanguage*}
-\end{abstract}

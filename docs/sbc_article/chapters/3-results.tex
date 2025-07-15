@@ -1,24 +1,12 @@
-\section{Análise Comparativa}
+\section{Resultados e Discussão}
 
-Nesta seção será realizada uma análise comparativa dos modelos resultantes do \textit{fine-tuning} realizado nas duas
-etapas de desenvolvimento. Além disso serão feitas comparações com o modelo base e entre os métodos de treinamento.
+Nesta seção serão apresentados os resultados e será realizada uma análise comparativa dos modelos resultantes do
+\textit{fine-tuning} realizado nas duas etapas de desenvolvimento. Além disso serão feitas comparações com o modelo
+base e entre os métodos de treinamento.
 
 \subsection{Desempenho na Classificação de Lesões de Pele}
 
-Os resultados obtidos na etapa final de desenvolvimento indicam que os modelos que passaram pelo \textit{fine-tuning}
-para a classificação de lesões de pele com imagens de aproximação obtiveram um desempenho mediano, ficando abaixo do
-esperado. Em comparação com os modelos da primeira etapa, treinados para a classificação com imagens de dermatoscopia,
-a
-acurácia foi consideravelmente menor.
-
-Os modelos da primeira etapa obtiveram um desempenho superior com um quantidade muito menor de dados, comparativamente,
-o modelo treinado com \ac{qlora} e 5000 imagens de dermatoscopia superou o modelo treinado com \ac{qlora} e 4736
-imagens de aproximação em 42,2\%. Embora existam diferenças nos hiperparâmetros de treinamento desses modelos, a
-divergência é significativa demais para estar relacionada apenas com os hiperparâmetros.
-
-A \autoref{tab:overall_comparison_skin_lesions} apresenta uma comparação entre todos os testes realizados. Os modelos
-que passaram pelo \textit{fine-tuning} apresentaram um desempenho substancialmente superior ao do modelo base na
-classificação das lesões.
+A \autoref{tab:overall_comparison_skin_lesions} apresenta uma comparação entre todos os testes realizados.
 
 \clearpage
 
@@ -48,9 +36,19 @@ classificação das lesões.
         \hline
     \end{tabular}
     \label{tab:overall_comparison_skin_lesions}
-    \caption{Acurácia na classificação de lesões de pele nos testes realizados neste trabalho. Os valores em
+    \caption{Acurácia na classificação de lesões de pele nos testes realizados. Os valores em
     negrito indicam as maiores acurácias para o tipo de imagem especificado. Fonte: Autoria própria.}
 \end{table}
+
+Os resultados obtidos na etapa final de desenvolvimento indicam que os modelos que passaram pelo \textit{fine-tuning}
+para a classificação de lesões de pele com imagens de aproximação obtiveram um desempenho mediano, ficando abaixo do
+esperado. Em comparação com os modelos da primeira etapa, treinados para a classificação com imagens de dermatoscopia,
+a acurácia foi consideravelmente menor.
+
+Os modelos da primeira etapa obtiveram um desempenho superior com um quantidade muito menor de dados, comparativamente,
+o modelo treinado com \ac{qlora} e 5000 imagens de dermatoscopia superou o modelo treinado com \ac{qlora} e 4736
+imagens de aproximação em 42,2\%. Embora existam diferenças nos hiperparâmetros de treinamento desses modelos, a
+divergência é significativa demais para estar relacionada apenas com os hiperparâmetros.
 
 \subsection{Desempenho na Classificação de Risco}
 
@@ -79,9 +77,8 @@ proporcionadas pelo \textit{fine-tuning}.
 O desempenho na geração de texto foi considerado satisfatório, conforme pode ser viso na
 \autoref{tab:overall_nlp_metrics}, tanto o modelo treinado com o \ac{qlora} quanto o com \ac{lora} atingiram um
 desempenho superior ao do modelo base, constatando que os modelos conseguiram generalizar o formato de geração do texto
-do laudo.
-
-\clearpage
+do laudo. Nas métricas \ac{bleu} e \ac{meteor} foi observado o maior ganho de desempenho em relação ao modelo base,
+enquanto na métrica \ac{rouge} o ganho de desempenho foi menor.
 
 \begin{table}[ht]
     \centering

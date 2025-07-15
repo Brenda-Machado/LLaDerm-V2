@@ -1,0 +1,38 @@
+\section{Conclusão}
+
+Os resultados apresentados constataram que o \textit{fine-tuning} do modelo \ac{llama}-3.2-11B pode ser feito de forma
+eficiente através do treinamento com \ac{qlora}. Os modelos treinados com este método obtiveram um desempenho
+semelhante ao dos modelos treinados com \ac{lora} e requisitaram menos memória durante o treinamento.
+
+Os resultados da etapa final foram poucos satisfatórios quanto ao critério de classificação de lesões, atingindo
+apenas 45,2\% de acurácia após o treinamento com \ac{qlora}. Embora o volume de dados utilizado nesta etapa tenha sido
+similar, com um total de 4736 pares de imagem e texto de resposta. O volume de dados no conjunto de treinamento pode
+ter sido insuficiente para o \textit{fine-tuning}, impossibilitando os modelos finais de realizarem uma tarefa complexa
+como a geração de laudos com classificações e recomendações. Além do volume insuficiente, o desbalanceamento do
+conjunto de dados, caracterizado pela raridade de algumas lesões, pode ter impactado os modelos treinados, levando a um
+desempenho inferior na classificação de lesões com poucas ocorrências no conjunto de dados. Outro aspecto negativo do
+conjunto foi a variabilidade dentro de algumas classes de lesões, com classes como ``Outras'', que não definem com
+precisão a lesão apresentada na imagem. O grande volume de classes incertas pode ter levado ao baixo desempenho
+observado nas tarefas de classificação.
+
+O desempenho na geração dos textos de conclusão na etapa final foi razoavelmente satisfatório, porém, alguns problemas
+foram identificados, como erros ortográficos e formatações não ideais. Essas características também são provenientes de
+inconsistências e erros no conjunto de dados.
+
+\subsection{Trabalhos Futuros}
+
+Considerando os resultados e limitações constatadas neste projeto, propõe-se a construção de um novo conjunto de dados
+com um maior volume e consistência entre as classes. Seria necessário incluir também uma nova classe referente a casos
+saudáveis, pois atualmente o modelo passa pelo \textit{fine-tuning} para classificar somente diferentes lesões de pele,
+desconsiderando a possibilidade da ausência de lesões.
+
+Recomenda-se também a otimização aprofundada dos hiperparâmetros de treinamento, possivelmente com técnicas de busca em
+grade.
+
+A utilização de outros \acp{mllm} também é recomendada, particularmente a do Gemma 3 de \textcite{team2025gemma}. Isso
+tornaria possível a realização de uma comparação mais avançada entre os diferentes modelos.
+
+Por fim, sugere-se a utilização de avaliações manuais sobre partes dos resultados dos testes. Atualmente, os resultados
+são analisados de forma automática, o que pode levar à desconsideração de aspectos importantes do texto gerado. Com a
+participação de dermatologistas qualificados, seria possível avaliar o conteúdo destes textos de forma mais
+aprofundada.
