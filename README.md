@@ -1,9 +1,71 @@
-# TCC - Fine-tuning do MLLM LLaMA para a Classificação de Lesões de Pele e Geração de Laudos
+# LLaDerm-V2
 
-Lesões de pele podem ser um indicador de diversas doenças, incluindo as graves, como o câncer de pele. A detecção precoce dessas lesões é fundamental para o tratamento e a cura da doença. No entanto, o diagnóstico preciso só pode ser feito por profissionais qualificados, como dermatologistas.
+O trabalho avaliou o uso de um MLLM para classificar lesões de pele e gerar laudos, realizando fine-tuning do modelo LLaMA 3.2 11B com as técnicas QLoRA e LoRA, baseadas em PEFT.
 
-Uma parte do atendimento de atenção primária no Brasil é feita por Agentes Comunitários de Saúde (ACS). Estes profissionais estão em contato direto com a população, porém, não são qualificados para realizar a triagem de casos de lesões de pele. Considerando este cenário, uma ferramenta capaz de classificar lesões de pele e também fornecer pré-diagnósticos e recomendações seria de grande utilidade.
+O desenvolvimento ocorreu em duas etapas:
 
-Multimodal Large Language Models (MLLMs) possuem as capacidades necessárias para o desenvolvimento de uma ferramenta como esta, pois podem classificar imagens e gerar descrições textuais com base no seu conteúdo. Além disso, estes modelos podem ser adaptados para tarefas específicas através de fine-tuning.
+- Classificação de lesões: foi utilizado o conjunto de imagens dermatoscópicas HAM10000. O melhor modelo, treinado com QLoRA, alcançou 87,4% de acurácia.
 
-Com o objetivo de avaliar o uso de um MLLM para a classificação de lesões de pele e a geração de laudos, foi realizado neste trabalho o fine-tuning do Large Language Model Meta AI (LLaMA) 3.2 11B com as técnicas Quantized Low Rank Adaptation (QLoRA) e Low-Rank Adaptation (LoRA), ambas baseadas em Parameter-Efficient Fine-Tuning (PEFT). O desenvolvimento foi realizado em duas etapas. Na primeira, o conjunto de imagens de dermatoscopia Human Against Machine with 10000 training images (HAM10000) foi utilizado no fine-tuning do modelo para apenas classificar lesões de pele. Nesta fase, o melhor modelo foi treinado com QLoRA e obteve uma acurácia de 87,4%. Na etapa final, um conjunto de imagens de aproximação, proveniente do Sistema Integrado Catarinense de Telemedicina e Telessaúde (STT/SC), foi utilizado no fine-tuning para a classificação de lesões e geração de laudos. O modelo final treinado com QLoRA e apresentou uma acurácia de 45,2%, enquanto o modelo com LoRA obteve 44,5%. O baixo desempenho dos modelos finais na classificação pode ser explicado por inconsistências no conjunto de dados.
+- Classificação e geração de laudos: utilizou-se um conjunto de imagens de aproximação do STT/SC. O modelo com QLoRA obteve 45,2% de acurácia, e o com LoRA, 44,5%.
+
+Links úteis:
+- [Repositório original;](https://github.com/ErFer7/LLaDerm)
+- [TCC do Eric.](https://repositorio.ufsc.br/handle/123456789/266618)
+
+## Instruções de instalação
+
+Utilize os seguintes comandos para a instalação. Recomendo você utilizar o ambiente [VLAB](https://jupyter.vlab.ufsc.br/) ou semelhante.
+
+1. Clone
+
+   ```bash
+   git clone https://github.com/Brenda-Machado/LLaDerm-V2.git
+   cd LLaDerm-V2
+   ```
+
+2. Ambiente virtual (recomendado)
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate 
+   ```
+
+3. Instalação das dependências
+
+   ```bash
+   pip install --upgrade pip
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+   pip install "unsloth[cu118-ampere-torch240] @ git+https://github.com/unslothai/unsloth.git"
+   pip install trl pydantic scikit-learn pandas matplotlib seaborn tensorboard
+   pip install python-dotenv huggingface_hub Pillow tqdm pyyaml
+   ```
+
+   Se tiver erros na instalacao do unsloth, consulte: https://github.com/unslothai/unsloth
+
+4. Configure seu token do Hugging Face
+
+O modelo base precisa ser baixado do Hugging Face. Crie um token em https://huggingface.co/settings/tokens e salve-o:
+
+```
+echo "HF_TOKEN=hf_seu_token_aqui" > .env
+```
+
+## Fluxo de trabalho
+
+Para entender melhor como funciona cada um dos scripts, o fluxo segue a seguinte lógica:
+
+```
+[1] Preparar dataset  -->  [2] Definir modelo base  -->  [3] Treinar
+        |                                                      |
+        v                                                      v
+ build_dataset.ipynb                               fine_tune.ipynb
+ OU prepare_custom_dataset.py
+ (veja secao 5)
+
+[4] Testar  -->  [5] Analisar resultados
+    |                    |
+    v                    v
+test.ipynb      analyze_tests.ipynb
+```
+
+## Uso
+
