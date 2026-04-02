@@ -31,41 +31,68 @@ Utilize os seguintes comandos para a instalação. Recomendo você utilizar o am
 
 3. Instalação das dependências
 
+   A princípio, você irá precisar instalar apenas o unsloth.
+
    ```bash
-   pip install --upgrade pip
-   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-   pip install "unsloth[cu118-ampere-torch240] @ git+https://github.com/unslothai/unsloth.git"
-   pip install trl pydantic scikit-learn pandas matplotlib seaborn tensorboard
-   pip install python-dotenv huggingface_hub Pillow tqdm pyyaml
+   pip install unsloth
    ```
 
    Se tiver erros na instalacao do unsloth, consulte: https://github.com/unslothai/unsloth
 
-4. Configure seu token do Hugging Face
+   Estou trabalhando em cima das outras dependências, mas até o fine-tuning é para não haver nenhum. [TO-DO]
 
-O modelo base precisa ser baixado do Hugging Face. Crie um token em https://huggingface.co/settings/tokens e salve-o:
+## Instruções de preparação do dataset
 
-```
-echo "HF_TOKEN=hf_seu_token_aqui" > .env
-```
+### ISIC 2019
 
-## Fluxo de trabalho
+   Os dados não estarão inclusos no repositório, então é necessário baixá-los utilizando ```wget``` e descompactá-los. 
+   
+   ### Download
+   
+   Primeiro, crie o caminho correto para a aplicação, dentro da raiz do projeto, isto é, a pasta LLaDerm:
 
-Para entender melhor como funciona cada um dos scripts, o fluxo segue a seguinte lógica:
+   ```
+   mkdir data/isic2019
+   ```
 
-```
-[1] Preparar dataset  -->  [2] Definir modelo base  -->  [3] Treinar
-        |                                                      |
-        v                                                      v
- build_dataset.ipynb                               fine_tune.ipynb
- OU prepare_custom_dataset.py
- (veja secao 5)
+   Em seguinda, baixe o repositório de imagens na pasta correspondente:
 
-[4] Testar  -->  [5] Analisar resultados
-    |                    |
-    v                    v
-test.ipynb      analyze_tests.ipynb
-```
+   ```
+   cd data/isic2019
+   wget https://isic-challenge-data.s3.amazonaws.com/2019/ISIC_2019_Training_Input.zip
+   ```
 
-## Uso
+   É um dataset de mais ou menos 9GB, então vai levar algum tempo. Agora é preciso baixar as labels:
+
+   ```
+   wget https://isic-challenge-data.s3.amazonaws.com/2019/ISIC_2019_Training_GroundTruth.csv
+   ```
+
+   e os metadados:
+
+   ```
+   wget https://isic-challenge-data.s3.amazonaws.com/2019/ISIC_2019_Training_Metadata.csv
+   ```
+
+   Agora, é necessário descompactar o .zip que foi baixado:
+
+   ```
+   unzip ISIC_2019_Training_Input.zip
+   ```
+
+   Isso resulta em uma pasta contendo muitas imagens.
+
+   ### Formatação para o pipeline
+
+   Como o ISIC não tem textos de laudo, é necessário formatar o dataset antes de iniciar o fine-tuning do modelo.
+
+   Dentro da pasta ```src/notebooks/```, rode o seguinte comando o Jupyter Notebook ```build_isic_dataset.ipynb```.
+
+   Em alguns minutos ele terá gerado os arquivos no formato correto.
+
+   ### Fine-tuning
+
+   Agora é para estar tudo pronto para iniciar o fine-tuning. Rode o Jupyter Notebook ```fine_tune.ipynb```. Ele irá pedir pela GPU que você quer utilizar (rode ```nvidia-smi``` no terminal antes de escolher). Também pedirá pelo seu token do HuggingFace. Após preenchido, o fine-tuning iniciará.
+
+   [mais detalhes em breve]...
 
