@@ -94,5 +94,11 @@ Utilize os seguintes comandos para a instalação. Recomendo você utilizar o am
 
    Agora é para estar tudo pronto para iniciar o fine-tuning. Rode o Jupyter Notebook ```fine_tune.ipynb```. Ele irá pedir pela GPU que você quer utilizar (rode ```nvidia-smi``` no terminal antes de escolher). Também pedirá pelo seu token do HuggingFace. Após preenchido, o fine-tuning iniciará.
 
-   [mais detalhes em breve]...
+   Quando o fine-tuning tiver finalizado, alguns arquivos .json serão salvos, como o ```models.json```, ```adapter_wheights.json```, ```training_hyperparameters.json```, etc.
+
+   ### Teste
+
+   Antes de iniciar o teste, você precisa definir o modelo base para treino, isso é feito rodando o Jupyter Notebook ```define_base_model.ipynb```. Se ele der algum erro, provavelmente houve um problema no salvamento dos dados do seu modelo. Ele irá pedir a GPU e o seu token da mesma forma que o Fine-tuning.
+
+   [mais detalhes em breve...]
 
